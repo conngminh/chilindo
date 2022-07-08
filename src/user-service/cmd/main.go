@@ -1,17 +1,18 @@
 package main
 
 import (
-	"chilindo/src/user/config"
-	"chilindo/src/user/controller"
-	"chilindo/src/user/repository"
-	"chilindo/src/user/route"
-	"chilindo/src/user/service"
-	"chilindo/src/user/utils"
+	"chilindo/src/user-service/config"
+	"chilindo/src/user-service/controller"
+	"chilindo/src/user-service/repository"
+	"chilindo/src/user-service/route"
+	"chilindo/src/user-service/service"
+	"chilindo/src/user-service/utils"
 	"log"
+	"net/http"
 )
 
 func main() {
-	db := config.ConnectDatabase()
+	db := config.GetDB()
 	//DI Auth
 	newRouter := utils.Router()
 
@@ -25,4 +26,6 @@ func main() {
 		log.Println("Open port is fail")
 		return
 	}
+	http.Handle("/", newRouter)
+	log.Fatal(http.ListenAndServe(":3000", newRouter))
 }

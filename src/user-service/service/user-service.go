@@ -1,8 +1,8 @@
 package service
 
 import (
-	"chilindo/src/user/entity"
-	"chilindo/src/user/repository"
+	"chilindo/src/user-service/entity"
+	"chilindo/src/user-service/repository"
 	"log"
 )
 
