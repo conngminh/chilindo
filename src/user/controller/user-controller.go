@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"chilindo/services/user/entity"
-	token "chilindo/services/user/jwt"
-	"chilindo/services/user/service"
+	"chilindo/src/user/entity"
+	token "chilindo/src/user/jwt"
+	"chilindo/src/user/service"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"

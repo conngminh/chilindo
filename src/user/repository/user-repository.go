@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"chilindo/services/user/entity"
+	"chilindo/src/user/entity"
 	"errors"
 	"gorm.io/gorm"
 )

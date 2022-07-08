@@ -1,6 +1,7 @@
 package config
 
 import (
+	"chilindo/src/user/entity"
 	"fmt"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
@@ -26,6 +27,9 @@ func ConnectDatabase() *gorm.DB {
 	})
 	if err != nil {
 		panic(err.Error())
+	}
+	if errConnect := db.AutoMigrate(&entity.User{}); errConnect != nil {
+		panic(errConnect.Error())
 	}
 	log.Fatal("Connected to db")
 	return db
