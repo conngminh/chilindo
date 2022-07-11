@@ -48,12 +48,14 @@ func ConnectDatabase() {
 		panic(errConnect.Error())
 	}
 }
+
 func GetDB() *gorm.DB {
 	return DB
 }
+
 func init() {
 	ConnectDatabase()
-	log.Fatal("Connected to database...")
+	log.Println("Connected to database...")
 }
 
 func CloseDatabase(db *gorm.DB) {

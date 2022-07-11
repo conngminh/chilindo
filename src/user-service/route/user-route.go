@@ -6,22 +6,25 @@ import (
 )
 
 type IUserRoute interface {
-	SetRouter()
+	GetRouter()
 }
-type UserRoute struct {
+type UserRouteDefault struct {
 	UserController controller.IUserController
 	Router         *gin.Engine
 }
 
-func (u UserRoute) SetRouter() {
-	api := u.Router.Group("/api/auth")
-	{
-		api.POST("/sign-up", u.UserController.SignUp)
-		//api.POST("/sign-in", u.UserController.SignIn)
-	}
-
+func (u *UserRouteDefault) GetRouter() {
+	newUserRoute(u.UserController, u.Router)
 }
 
-func NewUserRoute(userController controller.IUserController, router *gin.Engine) *UserRoute {
-	return &UserRoute{UserController: userController, Router: router}
+func newUserRoute(controller controller.IUserController, group *gin.Engine) {
+	userRoute := group.Group("/chilindo")
+	{
+		userRoute.POST("/sign-up", controller.SignUp)
+		userRoute.POST("/sign-in", controller.SignIn)
+	}
+}
+
+func NewUserRouteDefault(userController controller.IUserController, router *gin.Engine) *UserRouteDefault {
+	return &UserRouteDefault{UserController: userController, Router: router}
 }

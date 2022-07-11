@@ -1,29 +1,65 @@
 package service
 
 import (
+	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/repository"
+	"github.com/mashingan/smapping"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 )
 
 type IUserService interface {
-	SignUp(user *entity.User) (*entity.User, error)
-	//SignIn(dto *dto.LoginDTO) (*entity.User, error)
+	VerifyCredential(email string, password string) interface{}
+	CreateUser(user dto.LoginDTO) entity.User
+	FindByEmail(email string) entity.User
+	IsDuplicateEmail(email string) bool
 }
 
 type UserService struct {
 	UserRepository repository.UserRepository
 }
 
-func (u UserService) SignUp(user *entity.User) (*entity.User, error) {
-	newUser, err := u.UserRepository.CreateUser(user)
-	if err != nil {
-		log.Println("SignUp: Error CreateUser in package service")
-		return nil, err
+func NewUserServiceDefault(userRepository repository.UserRepository) *UserService {
+	return &UserService{UserRepository: userRepository}
+}
+func (u *UserService) VerifyCredential(email string, password string) interface{} {
+	res := u.UserRepository.VerifyCredential(email, password)
+	if v, ok := res.(entity.User); ok {
+		comparedPassword := comparePassword(v.Password, []byte(password))
+		if v.Email == email && comparedPassword {
+			return res
+		}
+		return false
 	}
-	return newUser, nil
+	return false
 }
 
-func NewUserService(userRepository repository.UserRepository) *UserService {
-	return &UserService{UserRepository: userRepository}
+func (u *UserService) CreateUser(user dto.LoginDTO) entity.User {
+	userToCreate := entity.User{}
+	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user))
+	if err != nil {
+		log.Fatalf("Failed map %v", err)
+	}
+	res := u.UserRepository.InsertUser(userToCreate)
+	return res
+}
+
+func (u *UserService) FindByEmail(email string) entity.User {
+	return u.UserRepository.FindByEmail(email)
+}
+
+func (u *UserService) IsDuplicateEmail(email string) bool {
+	res := u.UserRepository.IsDuplicateEmail(email)
+	return !(res.Error == nil)
+}
+
+func comparePassword(hashedPwd string, plainPassword []byte) bool {
+	byteHash := []byte(hashedPwd)
+	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	return true
 }

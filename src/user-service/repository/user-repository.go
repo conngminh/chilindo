@@ -2,59 +2,68 @@ package repository
 
 import (
 	"chilindo/src/user-service/entity"
-	"errors"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	CreateUser(user *entity.User) (*entity.User, error)
-	//GetUserById(id int) (*entity.User, error)
-	//CheckUsernameAndPassword(userName, passWord string) (string, error)
-	//CreateAddress(userId uint)
+	//CreateUser(user *entity.User) (*entity.User, error)
+	VerifyCredential(email string, password string) interface{}
+	InsertUser(user entity.User) entity.User
+	UpdateUser(user entity.User) entity.User
+	IsDuplicateEmail(email string) (tx *gorm.DB)
+	FindByEmail(email string) entity.User
+	ProfileUser(userID string) entity.User
 }
+
 type UserRepositoryDefault struct {
 	db *gorm.DB
 }
 
-//func (u UserRepositoryDefault) CheckUsernameAndPassword(userName, passWord string) (string, error) {
-//	var user *entity.User
-//	errUsernameExist := u.db.Debug().Model(entity.User{}).Where("username = ? ", userName).Take(&user).Error
-//
-//	if errUsernameExist != nil {
-//		errUsernameExist = errors.New("wrong username")
-//		return "", errUsernameExist
-//	} else {
-//		isPasswordMatch := utils.VerifyPassword(user.Password, passWord)
-//		if !isPasswordMatch {
-//			errPassword := errors.New("wrong password")
-//			return "", errPassword
-//		}
-//	}
-//	return strconv.Itoa(user.Id), nil
-//}
-
-func (u UserRepositoryDefault) CreateUser(user *entity.User) (*entity.User, error) {
-	var userMayDuplicated *entity.User
-	u.db.Where("Username = ?", user.Username).Find(&userMayDuplicated)
-	if userMayDuplicated.Username == user.Username {
-		err := errors.New("username existed")
-		return nil, err
-	}
-	//may the code to check password format be here
-
-	result := u.db.Create(&user)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return user, nil
-}
-
-//func (u UserRepositoryDefault) GetUserById(id int) (*entity.User, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-
 func NewUserRepositoryDefault(db *gorm.DB) *UserRepositoryDefault {
 	return &UserRepositoryDefault{db: db}
+}
+
+func (u *UserRepositoryDefault) InsertUser(user entity.User) entity.User {
+	user.Password, _ = user.HashPassword(user.Password)
+	u.db.Save(&user)
+	return user
+}
+
+func (u *UserRepositoryDefault) UpdateUser(user entity.User) entity.User {
+	if user.Password != "" {
+		user.Password, _ = user.HashPassword(user.Password)
+	} else {
+		var tempUser entity.User
+		u.db.Find(&tempUser, user.ID)
+		user.Password = tempUser.Password
+	}
+
+	u.db.Save(&user)
+	return user
+}
+
+func (u *UserRepositoryDefault) IsDuplicateEmail(email string) (tx *gorm.DB) {
+	var user entity.User
+	return u.db.Where("email = ?", email).Take(&user)
+}
+
+func (u *UserRepositoryDefault) FindByEmail(email string) entity.User {
+	var user entity.User
+	u.db.Where("email = ?", email).Take(&user)
+	return user
+}
+
+func (u *UserRepositoryDefault) ProfileUser(userID string) entity.User {
+	var user entity.User
+	u.db.Preload("Books").Preload("Books.User").Find(&user, userID)
+	return user
+}
+
+func (u *UserRepositoryDefault) VerifyCredential(email string, password string) interface{} {
+	var user entity.User
+	res := u.db.Where("email = ?", email).Take(&user)
+	if res.Error == nil {
+		return user
+	}
+	return nil
 }
