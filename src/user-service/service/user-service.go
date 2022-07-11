@@ -10,8 +10,9 @@ import (
 )
 
 type IUserService interface {
+	Update(user dto.UserUpdateDTO) entity.User
 	VerifyCredential(email string, password string) interface{}
-	CreateUser(user dto.LoginDTO) entity.User
+	CreateUser(user dto.UserLoginDTO) entity.User
 	FindByEmail(email string) entity.User
 	IsDuplicateEmail(email string) bool
 }
@@ -35,7 +36,7 @@ func (u *UserService) VerifyCredential(email string, password string) interface{
 	return false
 }
 
-func (u *UserService) CreateUser(user dto.LoginDTO) entity.User {
+func (u *UserService) CreateUser(user dto.UserLoginDTO) entity.User {
 	userToCreate := entity.User{}
 	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user))
 	if err != nil {
@@ -62,4 +63,13 @@ func comparePassword(hashedPwd string, plainPassword []byte) bool {
 		return false
 	}
 	return true
+}
+func (service *UserService) Update(user dto.UserUpdateDTO) entity.User {
+	userToUpdate := entity.User{}
+	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
+	if err != nil {
+		log.Fatalf("Failed map %v:", err)
+	}
+	updatedUser := service.UserRepository.UpdateUser(userToUpdate)
+	return updatedUser
 }

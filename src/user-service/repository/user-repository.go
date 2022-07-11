@@ -37,7 +37,7 @@ func (u *UserRepositoryDefault) UpdateUser(user entity.User) entity.User {
 		u.db.Find(&tempUser, user.ID)
 		user.Password = tempUser.Password
 	}
-
+	
 	u.db.Save(&user)
 	return user
 }

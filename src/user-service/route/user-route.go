@@ -2,6 +2,8 @@ package route
 
 import (
 	"chilindo/src/user-service/controller"
+	"chilindo/src/user-service/middleware"
+	"chilindo/src/user-service/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +24,10 @@ func newUserRoute(controller controller.IUserController, group *gin.Engine) {
 	{
 		userRoute.POST("/sign-up", controller.SignUp)
 		userRoute.POST("/sign-in", controller.SignIn)
+	}
+	userAuthRoute := group.Group("/chilindo/user", middleware.AuthorizeJWT(service.NewJWTService()))
+	{
+		userAuthRoute.PUT("/update", controller.Update)
 	}
 }
 
