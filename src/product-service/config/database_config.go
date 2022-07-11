@@ -10,8 +10,8 @@ import (
 )
 
 func ConnectDatabase() *gorm.DB {
-	if err := godotenv.Load(".env"); err != nil {
-		panic("Error loading .env file")
+	if err := godotenv.Load(".env.admin"); err != nil {
+		panic("Error loading .env.admin file")
 	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		os.Getenv("DB_USER"),
