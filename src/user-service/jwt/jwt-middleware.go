@@ -1,4 +1,4 @@
-package token
+package jwt
 
 import (
 	"github.com/golang-jwt/jwt"
@@ -6,26 +6,19 @@ import (
 	"time"
 )
 
-var jwtKey = []byte("supersecretkey")
+var jwtKey = []byte("superSecretKey")
 
-type IJwtMiddleware interface {
-	GenerateJWT(email string, username string, id int) (tokenString string, err error)
-	ExtractToken(tokenString string) *JWTClaim
-	ValidateToken(string string) (int, error)
-}
-type JWTClaim struct {
-	Username string
-	Email    string
-	Id       int
+type JWTClaims struct {
+	UserName string
+	UserID   int
 	jwt.StandardClaims
 }
 
-func (j *JWTClaim) GenerateJWT(email string, username string, id int) (tokenString string, err error) {
+func GenerateJWT(username string, userid int) (tokenString string, err error) {
 	expirationTime := time.Now().Add(1 * time.Hour)
-	claims := &JWTClaim{
-		Email:    email,
-		Username: username,
-		Id:       id,
+	claims := &JWTClaims{
+		UserName: username,
+		UserID:   userid,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -35,24 +28,25 @@ func (j *JWTClaim) GenerateJWT(email string, username string, id int) (tokenStri
 	return
 }
 
-func (j *JWTClaim) ExtractToken(tokenString string) *JWTClaim {
-	token, err := jwt.ParseWithClaims(tokenString, &JWTClaim{}, func(token *jwt.Token) (interface{}, error) {
+func ExtractedToken(signedToken string) *JWTClaims {
+	token, err := jwt.ParseWithClaims(signedToken, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtKey), nil
 	})
 	if err != nil {
 		return nil
 	}
-	claims, ok := token.Claims.(*JWTClaim)
+	claims, ok := token.Claims.(*JWTClaims)
 	if !ok {
 		return nil
 	}
 	return claims
 }
-func (j *JWTClaim) ValidateToken(signedToken string) (int, error) {
-	claims := j.ExtractToken(signedToken)
+
+func ValidateToken(signedToken string) (int, error) {
+	claims := ExtractedToken(signedToken)
 	if claims.ExpiresAt < time.Now().Local().Unix() {
 		log.Println("Token is expire")
 		return 0, nil
 	}
-	return claims.Id, nil
+	return claims.UserID, nil
 }
