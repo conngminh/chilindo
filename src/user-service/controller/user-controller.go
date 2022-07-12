@@ -28,16 +28,17 @@ func NewUserControllerDefault(userService service.IUserService, jwtService servi
 	return &UserController{UserService: userService, jwtService: jwtService}
 }
 
-func (u *UserController) SignUp(ctx *gin.Context) {
-	var newUser dto.UserLoginDTO
+func (u UserController) SignUp(ctx *gin.Context) {
+	var newUser *entity.User
 	errDTO := ctx.ShouldBind(&newUser)
+	fmt.Println(ctx.Request.Body)
 	if errDTO != nil {
 		response := utils.BuildErrorResponse("Failed to process request", errDTO.Error(), utils.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 	fmt.Println(newUser.Email)
-	if !u.UserService.IsDuplicateEmail(newUser.Email) {
+	if u.UserService.IsDuplicateEmail(newUser.Email) {
 		response := utils.BuildErrorResponse("Failed to process request", "email already existed", utils.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
@@ -69,7 +70,7 @@ func (u *UserController) SignIn(ctx *gin.Context) {
 }
 
 func (u *UserController) Update(context *gin.Context) {
-	var userUpdateDTO dto.UserUpdateDTO
+	var userUpdateDTO *dto.UserUpdateDTO
 	errDTO := context.ShouldBind(&userUpdateDTO)
 	if errDTO != nil {
 		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})

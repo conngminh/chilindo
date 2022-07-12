@@ -11,6 +11,7 @@ var jwtKey = []byte("supersecretkey")
 type IJwtMiddleware interface {
 	GenerateJWT(email string, username string, id int) (tokenString string, err error)
 	ExtractToken(tokenString string) *JWTClaim
+	ValidateToken(string string) (int, error)
 }
 type JWTClaim struct {
 	Username string
@@ -39,14 +40,19 @@ func (j *JWTClaim) ExtractToken(tokenString string) *JWTClaim {
 		return []byte(jwtKey), nil
 	})
 	if err != nil {
-		log.Println("ExtractToken: Error ParseWithClaims in middleWare")
 		return nil
 	}
 	claims, ok := token.Claims.(*JWTClaim)
 	if !ok {
-		log.Println("ExtractToken: Error ParseWithClaims in middleWare")
 		return nil
 	}
-
 	return claims
+}
+func (j *JWTClaim) ValidateToken(signedToken string) (int, error) {
+	claims := j.ExtractToken(signedToken)
+	if claims.ExpiresAt < time.Now().Local().Unix() {
+		log.Println("Token is expire")
+		return 0, nil
+	}
+	return claims.Id, nil
 }

@@ -10,10 +10,10 @@ import (
 )
 
 type IUserService interface {
-	Update(user dto.UserUpdateDTO) entity.User
+	Update(user *dto.UserUpdateDTO) *entity.User
 	VerifyCredential(email string, password string) interface{}
-	CreateUser(user dto.UserLoginDTO) entity.User
-	FindByEmail(email string) entity.User
+	CreateUser(user *entity.User) *entity.User
+	FindByEmail(email string) *entity.User
 	IsDuplicateEmail(email string) bool
 }
 
@@ -36,23 +36,19 @@ func (u *UserService) VerifyCredential(email string, password string) interface{
 	return false
 }
 
-func (u *UserService) CreateUser(user dto.UserLoginDTO) entity.User {
-	userToCreate := entity.User{}
-	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user))
-	if err != nil {
-		log.Fatalf("Failed map %v", err)
-	}
-	res := u.UserRepository.InsertUser(userToCreate)
+func (u *UserService) CreateUser(user *entity.User) *entity.User {
+
+	res := u.UserRepository.InsertUser(user)
 	return res
 }
 
-func (u *UserService) FindByEmail(email string) entity.User {
+func (u *UserService) FindByEmail(email string) *entity.User {
 	return u.UserRepository.FindByEmail(email)
 }
 
 func (u *UserService) IsDuplicateEmail(email string) bool {
 	res := u.UserRepository.IsDuplicateEmail(email)
-	return !(res.Error == nil)
+	return res
 }
 
 func comparePassword(hashedPwd string, plainPassword []byte) bool {
@@ -64,8 +60,9 @@ func comparePassword(hashedPwd string, plainPassword []byte) bool {
 	}
 	return true
 }
-func (service *UserService) Update(user dto.UserUpdateDTO) entity.User {
-	userToUpdate := entity.User{}
+
+func (service *UserService) Update(user *dto.UserUpdateDTO) *entity.User {
+	var userToUpdate *entity.User
 	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
 	if err != nil {
 		log.Fatalf("Failed map %v:", err)

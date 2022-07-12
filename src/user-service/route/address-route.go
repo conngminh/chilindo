@@ -19,7 +19,7 @@ func (a *AddressRouteDefault) GetRouter() {
 }
 
 func newAddressRoute(controller controller.IAddressController, group *gin.Engine) {
-	addressRoute := group.Group("/chilindo/address")
+	addressRoute := group.Group("/chilindo/address").Use()
 	{
 		addressRoute.POST("/create", controller.CreateAddress)
 		addressRoute.GET("/get/:id", controller.GetAddressByUserId)

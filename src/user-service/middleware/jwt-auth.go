@@ -14,13 +14,13 @@ import (
 func AuthorizeJWT(jwtService service.JWTService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 		if authHeader == "" {
 			response := utils.BuildErrorResponse("Failed to process request", "No token found", nil)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 		}
-		token, err := jwtService.ValidateToken(authHeader)
+		tokenSigned := strings.TrimPrefix(authHeader, "bearer ")
+		token, err := jwtService.ValidateToken(tokenSigned)
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
 			log.Println("Claim[user_id]:", claims["user_id"])

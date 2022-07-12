@@ -8,11 +8,11 @@ import (
 type UserRepository interface {
 	//CreateUser(user *entity.User) (*entity.User, error)
 	VerifyCredential(email string, password string) interface{}
-	InsertUser(user entity.User) entity.User
-	UpdateUser(user entity.User) entity.User
-	IsDuplicateEmail(email string) (tx *gorm.DB)
-	FindByEmail(email string) entity.User
-	ProfileUser(userID string) entity.User
+	InsertUser(user *entity.User) *entity.User
+	UpdateUser(user *entity.User) *entity.User
+	IsDuplicateEmail(email string) bool
+	FindByEmail(email string) *entity.User
+	ProfileUser(userID string) *entity.User
 }
 
 type UserRepositoryDefault struct {
@@ -23,13 +23,13 @@ func NewUserRepositoryDefault(db *gorm.DB) *UserRepositoryDefault {
 	return &UserRepositoryDefault{db: db}
 }
 
-func (u *UserRepositoryDefault) InsertUser(user entity.User) entity.User {
+func (u UserRepositoryDefault) InsertUser(user *entity.User) *entity.User {
 	user.Password, _ = user.HashPassword(user.Password)
-	u.db.Save(&user)
+	u.db.Create(&user)
 	return user
 }
 
-func (u *UserRepositoryDefault) UpdateUser(user entity.User) entity.User {
+func (u UserRepositoryDefault) UpdateUser(user *entity.User) *entity.User {
 	if user.Password != "" {
 		user.Password, _ = user.HashPassword(user.Password)
 	} else {
@@ -37,30 +37,35 @@ func (u *UserRepositoryDefault) UpdateUser(user entity.User) entity.User {
 		u.db.Find(&tempUser, user.ID)
 		user.Password = tempUser.Password
 	}
-	
+
 	u.db.Save(&user)
 	return user
 }
 
-func (u *UserRepositoryDefault) IsDuplicateEmail(email string) (tx *gorm.DB) {
-	var user entity.User
-	return u.db.Where("email = ?", email).Take(&user)
+func (u UserRepositoryDefault) IsDuplicateEmail(email string) bool {
+	var user *entity.User
+	u.db.Where("email = ?", email).Find(&user)
+	if user.Email == email {
+		return true
+	}
+	return false
 }
 
-func (u *UserRepositoryDefault) FindByEmail(email string) entity.User {
-	var user entity.User
-	u.db.Where("email = ?", email).Take(&user)
+func (u UserRepositoryDefault) FindByEmail(email string) *entity.User {
+	var user *entity.User
+	u.db.Where("email = ?", email).Find(&user)
+
 	return user
 }
 
-func (u *UserRepositoryDefault) ProfileUser(userID string) entity.User {
-	var user entity.User
+func (u UserRepositoryDefault) ProfileUser(userID string) *entity.User {
+	var user *entity.User
 	u.db.Preload("Books").Preload("Books.User").Find(&user, userID)
 	return user
 }
 
-func (u *UserRepositoryDefault) VerifyCredential(email string, password string) interface{} {
-	var user entity.User
+func (u UserRepositoryDefault) VerifyCredential(email string, password string) interface{} {
+	var user *entity.User
 	res := u.db.Where("email = ?", email).Take(&user)
 	if res.Error == nil {
 		return user

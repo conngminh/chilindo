@@ -14,5 +14,5 @@ type Address struct {
 	Address     string `json:"address" gorm:"type:nvarchar(200); not null"`
 	TypeAddress string `gorm:"type_address" gorm:"type:nvarchar(100); not null"`
 	UserID      uint64 `gorm:"not null" json:"-"`
-	User        User   `gorm:"foreignkey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE"json:"user"`
+	User        User   `gorm:"foreignkey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE"json:"-"`
 }

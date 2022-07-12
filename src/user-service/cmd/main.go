@@ -22,7 +22,7 @@ func main() {
 
 	addressRepo := repository.NewAddressRepositoryDefault(db)
 	addressService := service.NewAddressServiceDefault(addressRepo)
-	addressController := controller.NewAddressControllerDefault(addressService)
+	addressController := controller.NewAddressControllerDefault(addressService, service.NewJWTService())
 	addressRouter := route.NewAddressRouteDefault(addressController, newRouter)
 	addressRouter.GetRouter()
 
