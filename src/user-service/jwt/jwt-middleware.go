@@ -47,6 +47,5 @@ func (j *JWTClaim) ExtractToken(tokenString string) *JWTClaim {
 		log.Println("ExtractToken: Error ParseWithClaims in middleWare")
 		return nil
 	}
-
 	return claims
 }
