@@ -2,9 +2,9 @@ package controller
 
 import (
 	"chilindo/src/admin-service/dto"
+	"chilindo/src/admin-service/entity"
 	"chilindo/src/admin-service/helper"
 	"chilindo/src/admin-service/service"
-	"chilindo/src/user-service/entity"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -22,7 +22,7 @@ type adminController struct {
 	jwtService   service.JWTService
 }
 
-func (a adminController) Login(ctx *gin.Context) {
+func (a *adminController) Login(ctx *gin.Context) {
 	//TODO implement me
 	var loginDTO dto.LoginDTO
 	errDTO := ctx.ShouldBind(&loginDTO)
@@ -32,8 +32,8 @@ func (a adminController) Login(ctx *gin.Context) {
 		return
 	}
 	authResult := a.adminService.VerifyCredential(loginDTO.Email, loginDTO.Password)
-	if v, ok := authResult.(entity.User); ok {
-		generatedToken := a.jwtService.GenerateToken(strconv.FormatUint(uint64(v.ID), 10))
+	if v, ok := authResult.(entity.Administrator); ok {
+		generatedToken := a.jwtService.GenerateToken(strconv.FormatUint(uint64(v.Id), 10))
 		v.Token = generatedToken
 		response := helper.BuildResponse(true, "OK!", v)
 		ctx.JSON(http.StatusOK, response)
@@ -43,7 +43,7 @@ func (a adminController) Login(ctx *gin.Context) {
 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 }
 
-func (a adminController) Register(ctx *gin.Context) {
+func (a *adminController) Register(ctx *gin.Context) {
 	//TODO implement me
 	var registerDTO dto.RegisterDTO
 	errDTO := ctx.ShouldBind(&registerDTO)
@@ -65,7 +65,7 @@ func (a adminController) Register(ctx *gin.Context) {
 	}
 }
 
-func (a adminController) Update(context *gin.Context) {
+func (a *adminController) Update(context *gin.Context) {
 	//TODO implement me
 	var adminUpdateDTO dto.AdminUpdateDTO
 	errDTO := context.ShouldBind(&adminUpdateDTO)
@@ -74,7 +74,6 @@ func (a adminController) Update(context *gin.Context) {
 		context.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
-
 	authHeader := context.GetHeader("Authorization")
 	token, errToken := a.jwtService.ValidateToken(authHeader)
 	if errToken != nil {
@@ -90,7 +89,6 @@ func (a adminController) Update(context *gin.Context) {
 	res := helper.BuildResponse(true, "OK!", u)
 	context.JSON(http.StatusOK, res)
 }
-
 func NewAdminController(adminService service.AdminService, jwtService service.JWTService) AdminController {
 	return &adminController{
 		adminService: adminService,

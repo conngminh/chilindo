@@ -5,13 +5,12 @@ import (
 	"chilindo/src/admin-service/controller"
 	"chilindo/src/admin-service/repository"
 	"chilindo/src/admin-service/service"
-
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 var (
-	db              *gorm.DB                   = config.SetupDatabaseConnection()
+	db              *gorm.DB                   = config.GetDB()
 	adminRepository repository.AdminRepository = repository.NewAdminRepository(db)
 	jwtService      service.JWTService         = service.NewJWTService()
 	adminService    service.AdminService       = service.NewAdminService(adminRepository)
@@ -19,7 +18,7 @@ var (
 )
 
 func main() {
-	defer config.CloseDatabaseConnection(db)
+	defer config.CloseDatabase(db)
 	r := gin.Default()
 	//, middleware.AuthorizeJWT(jwtService)
 	adminRoutes := r.Group("api/admin")
@@ -27,4 +26,5 @@ func main() {
 		adminRoutes.POST("/login", adminController.Login)
 		adminRoutes.POST("/register", adminController.Register)
 	}
+	r.Run()
 }

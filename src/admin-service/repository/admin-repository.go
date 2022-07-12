@@ -17,25 +17,25 @@ type adminConnection struct {
 	connection *gorm.DB
 }
 
-func (db adminConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
+func (db *adminConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
 	//TODO implement me
 	var admin entity.Administrator
 	return db.connection.Where("email = ?", email).Take(&admin)
 }
 
-func (db adminConnection) InsertAdmin(admin entity.Administrator) entity.Administrator {
+func (db *adminConnection) InsertAdmin(admin entity.Administrator) entity.Administrator {
 	//TODO implement me
 	admin.Password = hashAndSalt([]byte(admin.Password))
 	db.connection.Save(&admin)
 	return admin
 }
 
-func (db adminConnection) VerifyCredential(email string, password string) interface{} {
+func (db *adminConnection) VerifyCredential(email string, password string) interface{} {
 	//TODO implement me
-	var user entity.Administrator
-	res := db.connection.Where("email = ?", email).Take(&user)
+	var admin entity.Administrator
+	res := db.connection.Where("email = ?", email).Take(&admin)
 	if res.Error == nil {
-		return user
+		return admin
 	}
 	return nil
 }
@@ -45,7 +45,7 @@ func NewAdminRepository(db *gorm.DB) AdminRepository {
 		connection: db,
 	}
 }
-func (db adminConnection) UpdateAdmin(admin entity.Administrator) entity.Administrator {
+func (db *adminConnection) UpdateAdmin(admin entity.Administrator) entity.Administrator {
 	//TODO implement me
 	if admin.Password != "" {
 		admin.Password = hashAndSalt([]byte(admin.Password))
