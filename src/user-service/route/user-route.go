@@ -10,6 +10,7 @@ import (
 type IUserRoute interface {
 	GetRouter()
 }
+
 type UserRouteDefault struct {
 	UserController controller.IUserController
 	Router         *gin.Engine
@@ -20,7 +21,7 @@ func (u *UserRouteDefault) GetRouter() {
 }
 
 func newUserRoute(controller controller.IUserController, group *gin.Engine) {
-	userRoute := group.Group("/chilindo")
+	userRoute := group.Group("/chilindo/user")
 	{
 		userRoute.POST("/sign-up", controller.SignUp)
 		userRoute.POST("/sign-in", controller.SignIn)
