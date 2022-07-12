@@ -26,17 +26,16 @@ func NewUserRepositoryDefault(db *gorm.DB) *UserRepositoryDefault {
 }
 
 func (u UserRepositoryDefault) InsertUser(user *entity.User) (*entity.User, error) {
-
-	errCheckEmptyField := user.Validate("register")
-
-	if errCheckEmptyField != nil {
+	if errCheckEmptyField := user.Validate("register"); errCheckEmptyField != nil {
 		log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
 		return nil, errCheckEmptyField
 	}
+
 	if errHashPassword := user.HashPassword(user.Password); errHashPassword != nil {
 		log.Println("CreateUser: Error in package repository", errHashPassword)
 		return nil, errHashPassword
 	}
+
 	result := u.db.Create(&user)
 	if result.Error != nil {
 		log.Println("CreateUser: Error in package repository", result.Error)
@@ -81,7 +80,6 @@ func (u UserRepositoryDefault) ProfileUser(userID string) *entity.User {
 }
 
 func (u UserRepositoryDefault) VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error) {
-
 	if errCheckEmptyField := loginDTO.Validate("login"); errCheckEmptyField != nil {
 		log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
 		return nil, errCheckEmptyField

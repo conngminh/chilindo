@@ -51,22 +51,12 @@ func (u *UserService) IsDuplicateEmail(email string) bool {
 	return res
 }
 
-//func ComparePassword(hashedPwd string, plainPassword []byte) bool {
-//	byteHash := []byte(hashedPwd)
-//	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
-//	if err != nil {
-//		log.Println(err)
-//		return false
-//	}
-//	return true
-//}
-
-func (service *UserService) Update(user *dto.UserUpdateDTO) *entity.User {
+func (u *UserService) Update(user *dto.UserUpdateDTO) *entity.User {
 	var userToUpdate *entity.User
 	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
 	if err != nil {
 		log.Fatalf("Failed map %v:", err)
 	}
-	updatedUser := service.UserRepository.UpdateUser(userToUpdate)
+	updatedUser := u.UserRepository.UpdateUser(userToUpdate)
 	return updatedUser
 }
