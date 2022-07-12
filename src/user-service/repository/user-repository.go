@@ -1,14 +1,16 @@
 package repository
 
 import (
+	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
+	"fmt"
 	"gorm.io/gorm"
+	"log"
 )
 
 type UserRepository interface {
-	//CreateUser(user *entity.User) (*entity.User, error)
-	VerifyCredential(email string, password string) interface{}
-	InsertUser(user *entity.User) *entity.User
+	VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error)
+	InsertUser(user *entity.User) (*entity.User, error)
 	UpdateUser(user *entity.User) *entity.User
 	IsDuplicateEmail(email string) bool
 	FindByEmail(email string) *entity.User
@@ -23,22 +25,29 @@ func NewUserRepositoryDefault(db *gorm.DB) *UserRepositoryDefault {
 	return &UserRepositoryDefault{db: db}
 }
 
-func (u UserRepositoryDefault) InsertUser(user *entity.User) *entity.User {
-	user.Password, _ = user.HashPassword(user.Password)
-	u.db.Create(&user)
-	return user
+func (u UserRepositoryDefault) InsertUser(user *entity.User) (*entity.User, error) {
+	if errHashPassword := user.HashPassword(user.Password); errHashPassword != nil {
+		log.Println("CreateUser: Error in package repository", errHashPassword)
+		return nil, errHashPassword
+	}
+	result := u.db.Create(&user)
+	if result.Error != nil {
+		log.Println("CreateUser: Error in package repository", result.Error)
+		return nil, result.Error
+	}
+	return user, nil
 }
 
 func (u UserRepositoryDefault) UpdateUser(user *entity.User) *entity.User {
-	if user.Password != "" {
-		user.Password, _ = user.HashPassword(user.Password)
-	} else {
-		var tempUser entity.User
-		u.db.Find(&tempUser, user.ID)
-		user.Password = tempUser.Password
-	}
-
-	u.db.Save(&user)
+	//if user.Password != "" {
+	//	user.Password, _ = user.HashPassword(user.Password)
+	//} else {
+	//	var tempUser entity.User
+	//	u.db.Find(&tempUser, user.ID)
+	//	user.Password = tempUser.Password
+	//}
+	//
+	//u.db.Save(&user)
 	return user
 }
 
@@ -64,11 +73,24 @@ func (u UserRepositoryDefault) ProfileUser(userID string) *entity.User {
 	return user
 }
 
-func (u UserRepositoryDefault) VerifyCredential(email string, password string) interface{} {
+func (u UserRepositoryDefault) VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error) {
 	var user *entity.User
-	res := u.db.Where("email = ?", email).Take(&user)
-	if res.Error == nil {
-		return user
+
+	//errCheckEmptyField := user.Validate("login")
+	//
+	//if errCheckEmptyField != nil {
+	//	log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
+	//	return nil, errCheckEmptyField
+	//}
+	res := u.db.Where("email = ?", loginDTO.Email).Find(&user)
+	fmt.Println(user)
+	if res.Error != nil {
+		log.Println("VerifyCredential: Error find username in package repository", res.Error)
+		return nil, res.Error
 	}
-	return nil
+	if err := user.CheckPassword(loginDTO.Password); err != nil {
+		log.Println("VerifyCredential: Error in check password package repository")
+		return nil, err
+	}
+	return user, nil
 }

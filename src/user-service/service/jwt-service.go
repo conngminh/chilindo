@@ -3,13 +3,14 @@ package service
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt"
+	"log"
 	"os"
 	"time"
 )
 
 //JWTService is a contract of what jwtService can do
 type JWTService interface {
-	GenerateToken(userID string) string
+	GenerateToken(userID uint) (string, error)
 	ValidateToken(token string) (*jwt.Token, error)
 }
 
@@ -38,9 +39,9 @@ func getSecretKey() string {
 	}
 	return secretKey
 }
-func (j *jwtService) GenerateToken(UserID string) string {
+func (j *jwtService) GenerateToken(UserID uint) (string, error) {
 	claims := &jwtCustomClaim{
-		UserID,
+		string(UserID),
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().AddDate(1, 0, 0).Unix(),
 			Issuer:    j.issuer,
@@ -50,9 +51,9 @@ func (j *jwtService) GenerateToken(UserID string) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS384, claims)
 	t, err := token.SignedString([]byte(j.secretKey))
 	if err != nil {
-		panic(err)
+		log.Print("Error: Error when Generate Token in service jwt", err.Error())
 	}
-	return t
+	return t, err
 }
 func (j *jwtService) ValidateToken(token string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(t_ *jwt.Token) (interface{}, error) {

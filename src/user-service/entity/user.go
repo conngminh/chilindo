@@ -22,13 +22,13 @@ type User struct {
 	Token    string `gorm:"-" json:"token,omitempty"`
 }
 
-func (user *User) HashPassword(password string) (string, error) {
+func (user *User) HashPassword(password string) error {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
-		return "", err
+		return err
 	}
 	user.Password = string(bytes)
-	return user.Password, nil
+	return nil
 }
 
 func (user *User) CheckPassword(providedPassword string) error {

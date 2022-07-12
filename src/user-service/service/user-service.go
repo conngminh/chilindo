@@ -5,13 +5,12 @@ import (
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/repository"
 	"github.com/mashingan/smapping"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 )
 
 type IUserService interface {
 	Update(user *dto.UserUpdateDTO) *entity.User
-	VerifyCredential(email string, password string) interface{}
+	VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error)
 	CreateUser(user *entity.User) *entity.User
 	FindByEmail(email string) *entity.User
 	IsDuplicateEmail(email string) bool
@@ -24,21 +23,18 @@ type UserService struct {
 func NewUserServiceDefault(userRepository repository.UserRepository) *UserService {
 	return &UserService{UserRepository: userRepository}
 }
-func (u *UserService) VerifyCredential(email string, password string) interface{} {
-	res := u.UserRepository.VerifyCredential(email, password)
-	if v, ok := res.(entity.User); ok {
-		comparedPassword := comparePassword(v.Password, []byte(password))
-		if v.Email == email && comparedPassword {
-			return res
-		}
-		return false
+func (u *UserService) VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error) {
+	user, err := u.UserRepository.VerifyCredential(loginDTO)
+
+	if err != nil {
+		log.Println("SignIn: Error VerifyCredential in package service")
+		return nil, err
 	}
-	return false
+	return user, nil
 }
 
 func (u *UserService) CreateUser(user *entity.User) *entity.User {
-
-	res := u.UserRepository.InsertUser(user)
+	res, _ := u.UserRepository.InsertUser(user)
 	return res
 }
 
@@ -51,15 +47,15 @@ func (u *UserService) IsDuplicateEmail(email string) bool {
 	return res
 }
 
-func comparePassword(hashedPwd string, plainPassword []byte) bool {
-	byteHash := []byte(hashedPwd)
-	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	return true
-}
+//func ComparePassword(hashedPwd string, plainPassword []byte) bool {
+//	byteHash := []byte(hashedPwd)
+//	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
+//	if err != nil {
+//		log.Println(err)
+//		return false
+//	}
+//	return true
+//}
 
 func (service *UserService) Update(user *dto.UserUpdateDTO) *entity.User {
 	var userToUpdate *entity.User

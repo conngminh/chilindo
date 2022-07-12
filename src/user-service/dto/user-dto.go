@@ -1,8 +1,8 @@
 package dto
 
 type UserLoginDTO struct {
-	Email    string `json:"email" from:"email" binding:"required,email"`
-	Password string `json:"password" from:"password" binding:"required"`
+	Email    string
+	Password string
 }
 
 type UserUpdateDTO struct {

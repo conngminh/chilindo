@@ -26,7 +26,7 @@ func main() {
 	addressRouter := route.NewAddressRouteDefault(addressController, newRouter)
 	addressRouter.GetRouter()
 
-	if err := newRouter.Run(":3000"); err != nil {
+	if err := newRouter.Run(":8080"); err != nil {
 		fmt.Println("Open port is fail")
 		return
 	}

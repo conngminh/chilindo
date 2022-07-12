@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -30,43 +31,72 @@ func NewUserControllerDefault(userService service.IUserService, jwtService servi
 
 func (u UserController) SignUp(ctx *gin.Context) {
 	var newUser *entity.User
-	errDTO := ctx.ShouldBind(&newUser)
-	fmt.Println(ctx.Request.Body)
+	errDTO := ctx.ShouldBindJSON(&newUser)
+
 	if errDTO != nil {
 		response := utils.BuildErrorResponse("Failed to process request", errDTO.Error(), utils.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	fmt.Println(newUser.Email)
+
 	if u.UserService.IsDuplicateEmail(newUser.Email) {
 		response := utils.BuildErrorResponse("Failed to process request", "email already existed", utils.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
-	} else {
-		createdUser := u.UserService.CreateUser(newUser)
-		token := u.jwtService.GenerateToken(strconv.FormatUint(uint64(createdUser.ID), 10))
-		createdUser.Token = token
-		response := utils.BuildResponse(true, "OK!", createdUser)
-		ctx.JSON(http.StatusCreated, response)
+		ctx.Abort()
+		return
 	}
+	createdUser := u.UserService.CreateUser(newUser)
+	tokenString, errGenToken := u.jwtService.GenerateToken(createdUser.ID)
+	if errGenToken != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error SignIn",
+		})
+		log.Println("SignIn: Error in GenerateJWT in package controller")
+		ctx.Abort()
+		return
+	}
+	createdUser.Token = tokenString
+	response := utils.BuildResponse(true, "OK!", createdUser)
+	ctx.JSON(http.StatusCreated, response)
+
 }
 func (u *UserController) SignIn(ctx *gin.Context) {
-	var loginDTO dto.UserLoginDTO
-	errDTO := ctx.ShouldBind(&loginDTO)
+	var loginDTO *dto.UserLoginDTO
+	errDTO := ctx.ShouldBindJSON(&loginDTO)
+
 	if errDTO != nil {
-		response := utils.BuildErrorResponse("Failed to process request", errDTO.Error(), utils.EmptyObj{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error to sign in",
+		})
+		log.Println("SignIn: Error ShouldBindJSON in package controller", errDTO)
+		ctx.Abort()
 		return
 	}
-	authResult := u.UserService.VerifyCredential(loginDTO.Email, loginDTO.Password)
-	if authenticatedUser, ok := authResult.(entity.User); ok {
-		generatedToken := u.jwtService.GenerateToken(strconv.FormatUint(uint64(authenticatedUser.ID), 10))
-		authenticatedUser.Token = generatedToken
-		response := utils.BuildResponse(true, "OK!", authenticatedUser)
-		ctx.JSON(http.StatusOK, response)
+
+	user, err := u.UserService.VerifyCredential(loginDTO)
+
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"Message": "Error SignIn",
+		})
+		log.Println("SignIn: Error in UserService.SignIn in package controller")
+		ctx.Abort()
 		return
 	}
-	response := utils.BuildErrorResponse("Please check again your credential", "wrong email or password", utils.EmptyObj{})
-	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+
+	tokenString, errGenToken := u.jwtService.GenerateToken(user.ID)
+
+	if errGenToken != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error SignIn",
+		})
+		log.Println("SignIn: Error in GenerateJWT in package controller")
+		ctx.Abort()
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"Token": tokenString,
+	})
 }
 
 func (u *UserController) Update(context *gin.Context) {
