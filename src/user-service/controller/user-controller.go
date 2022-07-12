@@ -5,7 +5,6 @@ import (
 	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/service"
-	"chilindo/src/user-service/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -34,50 +33,63 @@ func (u UserController) SignUp(ctx *gin.Context) {
 	errDTO := ctx.ShouldBindJSON(&newUser)
 
 	if errDTO != nil {
-		response := utils.BuildErrorResponse("Failed to process request", errDTO.Error(), utils.EmptyObj{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-
-	if u.UserService.IsDuplicateEmail(newUser.Email) {
-		response := utils.BuildErrorResponse("Failed to process request", "email already existed", utils.EmptyObj{})
-		ctx.JSON(http.StatusConflict, response)
-		ctx.Abort()
-		return
-	}
-	createdUser := u.UserService.CreateUser(newUser)
-	tokenString, errGenToken := u.jwtService.GenerateToken(createdUser.ID)
-	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Message": "Error SignIn",
-		})
-		log.Println("SignIn: Error in GenerateJWT in package controller")
-		ctx.Abort()
-		return
-	}
-	createdUser.Token = tokenString
-	response := utils.BuildResponse(true, "OK!", createdUser)
-	ctx.JSON(http.StatusCreated, response)
-
-}
-func (u *UserController) SignIn(ctx *gin.Context) {
-	var loginDTO *dto.UserLoginDTO
-	errDTO := ctx.ShouldBindJSON(&loginDTO)
-
-	if errDTO != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Message": "Error to sign in",
+			"Message": "Error Binding JSON",
 		})
 		log.Println("SignIn: Error ShouldBindJSON in package controller", errDTO)
 		ctx.Abort()
 		return
 	}
 
-	user, err := u.UserService.VerifyCredential(loginDTO)
+	//if u.UserService.IsDuplicateEmail(newUser.Email) {
+	//	ctx.JSON(http.StatusConflict, gin.H{
+	//		"error": "email existed",
+	//	})
+	//	log.Println("SignUp: email existed", errDTO)
+	//	ctx.Abort()
+	//	return
+	//}
 
-	if err != nil {
+	createdUser, errCreate := u.UserService.CreateUser(newUser)
+	if errCreate != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": errCreate.Error(),
+		})
+		log.Println("SignUp: email existed", errDTO)
+		ctx.Abort()
+		return
+	}
+
+	tokenString, errGenToken := u.jwtService.GenerateToken(createdUser.ID)
+	if errGenToken != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": errGenToken.Error(),
+		})
+		log.Println("SignIn: Error in GenerateJWT in package controller")
+		ctx.Abort()
+		return
+	}
+	createdUser.Token = tokenString
+	ctx.JSON(http.StatusCreated, gin.H{"token": createdUser.Token})
+}
+
+func (u *UserController) SignIn(ctx *gin.Context) {
+	var loginDTO *dto.UserLoginDTO
+
+	errDTO := ctx.ShouldBindJSON(&loginDTO)
+	if errDTO != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error Binding JSON",
+		})
+		log.Println("SignIn: Error ShouldBindJSON in package controller", errDTO)
+		ctx.Abort()
+		return
+	}
+
+	user, errVerify := u.UserService.VerifyCredential(loginDTO)
+	if errVerify != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"Message": "Error SignIn",
+			"Message": errVerify.Error(),
 		})
 		log.Println("SignIn: Error in UserService.SignIn in package controller")
 		ctx.Abort()
@@ -85,17 +97,16 @@ func (u *UserController) SignIn(ctx *gin.Context) {
 	}
 
 	tokenString, errGenToken := u.jwtService.GenerateToken(user.ID)
-
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Message": "Error SignIn",
+			"Message": errGenToken.Error(),
 		})
 		log.Println("SignIn: Error in GenerateJWT in package controller")
 		ctx.Abort()
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"Token": tokenString,
+		"token": tokenString,
 	})
 }
 

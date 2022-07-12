@@ -8,14 +8,15 @@ import (
 )
 
 type User struct {
-	gorm.Model
-	Firstname string `json:"firstname" gorm:"type:nvarchar(100);not null"`
-	Lastname  string `json:"description" gorm:"type:nvarchar(100);not null"`
+	gorm.Model `json:"-"`
+	Id         uint   `json:"id" gorm:"primaryKey"`
+	Firstname  string `json:"firstname" gorm:"type:nvarchar(100);not null"`
+	Lastname   string `json:"description" gorm:"type:nvarchar(100);not null"`
 	//Username  string `json:"username" gorm:"type:nvarchar(100)"`
-	Password string `json:"-" gorm:"type:nvarchar(100);not null"`
+	Password string `json:"password" gorm:"type:nvarchar(100);not null"`
 	Birthday string `json:"birthday" gorm:"type:nvarchar(100)"`
 	Phone    string `json:"phone" gorm:"type:nvarchar(100)"`
-	Email    string `json:"email" gorm:"type:nvarchar(100); not null"`
+	Email    string `json:"email" gorm:"type:nvarchar(100);not null;unique"`
 	Gender   bool   `json:"gender" gorm:"type:boolean"`
 	Country  string `json:"country" gorm:"type:nvarchar(100)"`
 	Language string `json:"language" gorm:"type:nvarchar(100)"`
@@ -51,27 +52,27 @@ func (user *User) BeforeSave() error {
 func (user *User) Validate(action string) error {
 	switch strings.ToLower(action) {
 	case "login":
-		if user.Password == "" {
-			return errors.New("required Password")
+		if len(strings.TrimSpace(user.Email)) == 0 {
+			return errors.New("required email")
 		}
-		if user.Email == "" {
-			return errors.New("required Email")
+		if len(strings.TrimSpace(user.Password)) == 0 {
+			return errors.New("required password")
 		}
 		return nil
 	case "register":
-		if user.Password == "" {
-			return errors.New("required Password")
+		if len(strings.TrimSpace(user.Email)) == 0 {
+			return errors.New("required email")
 		}
-		if user.Email == "" {
-			return errors.New("required Email")
+		if len(strings.TrimSpace(user.Password)) == 0 {
+			return errors.New("required password")
 		}
 		return nil
 	default:
-		if user.Email == "" {
-			return errors.New("required Email")
+		if len(strings.TrimSpace(user.Email)) == 0 {
+			return errors.New("required email")
 		}
-		if user.Password == "" {
-			return errors.New("required Password")
+		if len(strings.TrimSpace(user.Password)) == 0 {
+			return errors.New("required password")
 		}
 		return nil
 	}

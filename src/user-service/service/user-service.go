@@ -11,7 +11,7 @@ import (
 type IUserService interface {
 	Update(user *dto.UserUpdateDTO) *entity.User
 	VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error)
-	CreateUser(user *entity.User) *entity.User
+	CreateUser(user *entity.User) (*entity.User, error)
 	FindByEmail(email string) *entity.User
 	IsDuplicateEmail(email string) bool
 }
@@ -27,15 +27,19 @@ func (u *UserService) VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User
 	user, err := u.UserRepository.VerifyCredential(loginDTO)
 
 	if err != nil {
-		log.Println("SignIn: Error VerifyCredential in package service")
+		log.Println("SignIn: Error VerifyCredential in package service: ", err.Error())
 		return nil, err
 	}
 	return user, nil
 }
 
-func (u *UserService) CreateUser(user *entity.User) *entity.User {
-	res, _ := u.UserRepository.InsertUser(user)
-	return res
+func (u *UserService) CreateUser(user *entity.User) (*entity.User, error) {
+	newUser, err := u.UserRepository.InsertUser(user)
+	if err != nil {
+		log.Println("Error: Error in package repository: ", err.Error())
+		return nil, err
+	}
+	return newUser, err
 }
 
 func (u *UserService) FindByEmail(email string) *entity.User {
