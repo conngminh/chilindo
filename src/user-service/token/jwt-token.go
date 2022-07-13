@@ -32,25 +32,19 @@ func (j *Claims) GenerateJWT(email string, userid uint) (tokenString string, err
 	return
 }
 
-func ExtractedToken(signedToken string) *Claims {
-	token, err := jwt.ParseWithClaims(signedToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(jwtKey), nil
-	})
+func ExtractToken(signedToken string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&Claims{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(jwtKey), nil
+		})
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	claims, ok := token.Claims.(*Claims)
 	if !ok {
-		return nil
+		return nil, err
 	}
-	return claims
+	return claims, nil
 }
-
-//func ValidateToken(signedToken string) (uint, error) {
-//	claims := ExtractedToken(signedToken)
-//	if claims.ExpiresAt < time.Now().Local().Unix() {
-//		log.Println("Token is expire")
-//		return 0, nil
-//	}
-//	return claims.UserId, nil
-//}

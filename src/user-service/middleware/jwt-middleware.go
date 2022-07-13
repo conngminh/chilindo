@@ -18,7 +18,7 @@ type SMiddleWare struct {
 	tokenController *token.Claims
 }
 
-func (s *SMiddleWare) MiddleWare() gin.HandlerFunc {
+func (s *SMiddleWare) IsAuthenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {
@@ -30,8 +30,16 @@ func (s *SMiddleWare) MiddleWare() gin.HandlerFunc {
 			return
 		}
 		tokenResult := strings.TrimPrefix(tokenString, "Bearer ")
-		claim := token.ExtractedToken(tokenResult)
-		c.Set(config.UserId, claim.Id)
+		claim, err := token.ExtractToken(tokenResult)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"Message": err.Error(),
+			})
+			log.Println("Error:", err.Error())
+			c.Abort()
+			return
+		}
+		c.Set(config.UserId, claim.UserId)
 		if claim.ExpiresAt < time.Now().Local().Unix() {
 			c.JSONP(http.StatusUnauthorized, gin.H{
 				"Message": "Token is Expired",

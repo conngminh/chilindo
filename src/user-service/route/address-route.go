@@ -14,7 +14,7 @@ type IAddressRoute interface {
 type AddressRoute struct {
 	AddressController controller.IAddressController
 	Router            *gin.Engine
-	MW                *middleware.SMiddleWare
+	JWTMiddleware     *middleware.SMiddleWare
 }
 
 func NewAddressRouteDefault(addressController controller.IAddressController, router *gin.Engine) *AddressRoute {
@@ -22,15 +22,8 @@ func NewAddressRouteDefault(addressController controller.IAddressController, rou
 }
 
 func (a AddressRoute) GetRouter() {
-	addressRoute := a.Router.Group("/chilindo/user/address").Use(a.MW.MiddleWare())
+	addressRoute := a.Router.Group("/chilindo/user/address").Use(a.JWTMiddleware.IsAuthenticated())
 	{
 		addressRoute.POST("/create", a.AddressController.CreateAddress)
 	}
 }
-
-//func newAddressRoute(controller controller.IAddressController, group *gin.Engine) {
-//	addressRoute := group.Group("/chilindo/user/address")
-//	{
-//		addressRoute.POST("/create", controller.CreateAddress)
-//	}
-//}

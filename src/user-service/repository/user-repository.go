@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-type UserRepository interface {
+type IUserRepository interface {
 	VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error)
 	InsertUser(user *entity.User) (*entity.User, error)
 	UpdateUser(user *entity.User) *entity.User

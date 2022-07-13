@@ -43,21 +43,21 @@ func (u UserController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	//if u.UserService.IsDuplicateEmail(newUser.Email) {
-	//	ctx.JSON(http.StatusConflict, gin.H{
-	//		"error": "email existed",
-	//	})
-	//	log.Println("SignUp: email existed", errDTO)
-	//	ctx.Abort()
-	//	return
-	//}
+	if u.UserService.IsDuplicateEmail(newUser.Email) {
+		ctx.JSON(http.StatusConflict, gin.H{
+			"error": "email existed",
+		})
+		log.Println("SignUp: email existed", errDTO)
+		ctx.Abort()
+		return
+	}
 
 	createdUser, errCreate := u.UserService.CreateUser(newUser)
 	if errCreate != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": errCreate.Error(),
 		})
-		log.Println("SignUp: email existed", errDTO)
+		log.Println("SignUp: Error in package controller", errDTO)
 		ctx.Abort()
 		return
 	}

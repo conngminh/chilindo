@@ -17,10 +17,10 @@ type IUserService interface {
 }
 
 type UserService struct {
-	UserRepository repository.UserRepository
+	UserRepository repository.IUserRepository
 }
 
-func NewUserServiceDefault(userRepository repository.UserRepository) *UserService {
+func NewUserServiceDefault(userRepository repository.IUserRepository) *UserService {
 	return &UserService{UserRepository: userRepository}
 }
 func (u *UserService) VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error) {

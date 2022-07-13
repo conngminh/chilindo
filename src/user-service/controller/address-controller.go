@@ -4,6 +4,7 @@ import (
 	"chilindo/src/user-service/config"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -22,25 +23,26 @@ func NewAddressControllerDefault(addressService service.IAddressService) *Addres
 }
 
 func (a *AddressController) CreateAddress(c *gin.Context) {
-	var address *entity.Address
+	var newAddress *entity.Address
 	userId, ok := c.Get(config.UserId)
+	fmt.Println("neeeeeee", userId)
 	if !ok {
-		c.JSONP(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": "Error create address",
 		})
 		log.Println("CreateAddress: Error Get User ID in package controller")
 		c.Abort()
 		return
 	}
-	address.UserId = userId.(uint64)
-	address, err := a.AddressService.CreateAddress(address)
+	newAddress.UserId = userId.(uint)
+	createdAddress, err := a.AddressService.CreateAddress(newAddress)
 	if err != nil {
-		c.JSONP(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": "Error Add address",
 		})
-		log.Println("CreateAddressBy: Error create new address in package controller")
+		log.Println("CreateAddress: Error create new address in package controller")
 		return
 	}
-	c.JSONP(http.StatusOK, address)
+	c.JSON(http.StatusOK, createdAddress)
 
 }

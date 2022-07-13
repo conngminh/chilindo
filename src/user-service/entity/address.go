@@ -13,6 +13,6 @@ type Address struct {
 	SubDistrict string `json:"sub_district" gorm:"type:nvarchar(100)"`
 	Address     string `json:"address" gorm:"type:nvarchar(200); not null"`
 	TypeAddress string `gorm:"type_address" gorm:"type:nvarchar(100); not null"`
-	UserId      uint64 `gorm:"not null" json:"-"`
+	UserId      uint   `gorm:"not null" json:"-"`
 	User        User   `gorm:"foreignkey:UserId;constraint:onUpdate:CASCADE,onDelete:CASCADE"json:"-"`
 }
