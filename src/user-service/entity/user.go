@@ -16,7 +16,7 @@ type User struct {
 	Password string `json:"password" gorm:"type:nvarchar(100);not null"`
 	Birthday string `json:"birthday" gorm:"type:nvarchar(100)"`
 	Phone    string `json:"phone" gorm:"type:nvarchar(100)"`
-	Email    string `json:"email" gorm:"type:nvarchar(100);not null;unique"`
+	Email    string `json:"email" gorm:"type:nvarchar(100);not null"`
 	Gender   bool   `json:"gender" gorm:"type:boolean"`
 	Country  string `json:"country" gorm:"type:nvarchar(100)"`
 	Language string `json:"language" gorm:"type:nvarchar(100)"`

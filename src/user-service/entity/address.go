@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 type Address struct {
 	gorm.Model
 	Firstname   string `json:"firstname" gorm:"type:nvarchar(100);not null"`
-	Lastname    string `json:"description" gorm:"type:nvarchar(100);not null"`
+	Lastname    string `json:"lastname" gorm:"type:nvarchar(100);not null"`
 	Phone       string `json:"phone" gorm:"type:nvarchar(100)"`
 	Email       string `json:"email" gorm:"type:nvarchar(100); not null"`
 	Province    string `json:"province" gorm:"type:nvarchar(100); not null"`

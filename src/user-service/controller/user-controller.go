@@ -62,7 +62,7 @@ func (u UserController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	tokenString, errGenToken := u.token.GenerateJWT(createdUser.Email, createdUser.ID)
+	tokenString, errGenToken := u.token.GenerateJWT(createdUser.Email, createdUser.Id)
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": errGenToken.Error(),
@@ -98,7 +98,7 @@ func (u *UserController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	tokenString, errGenToken := u.token.GenerateJWT(user.Email, user.ID)
+	tokenString, errGenToken := u.token.GenerateJWT(user.Email, user.Id)
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": errGenToken.Error(),

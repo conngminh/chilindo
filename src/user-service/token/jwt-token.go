@@ -8,7 +8,7 @@ import (
 var jwtKey = []byte("superSecretKey")
 
 type IJwtMiddleware interface {
-	GenerateJWT(email string, uid uint) (tokenString string, err error)
+	GenerateJWT(email string, userid uint) (tokenString string, err error)
 	ExtractToken(tokenString string) (*Claims, error)
 }
 

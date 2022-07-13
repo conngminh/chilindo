@@ -42,9 +42,9 @@ func (s *SMiddleWare) IsAuthenticated() gin.HandlerFunc {
 		c.Set(config.UserId, claim.UserId)
 		if claim.ExpiresAt < time.Now().Local().Unix() {
 			c.JSONP(http.StatusUnauthorized, gin.H{
-				"Message": "Token is Expired",
+				"Message": "token is expired",
 			})
-			log.Println("MiddleWare: Error token is Expired")
+			log.Println("MiddleWare: Error token is expired")
 			c.Abort()
 			return
 		}
