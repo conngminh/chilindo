@@ -45,10 +45,10 @@ func (a *AddressController) CreateAddress(ctx *gin.Context) {
 	}
 
 	newAddress.UserId = userId.(uint)
-	createdAddress, err := a.AddressService.CreateAddress(newAddress)
-	if err != nil {
+	createdAddress, errCreateAddress := a.AddressService.CreateAddress(newAddress)
+	if errCreateAddress != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"Message": "Error Add address",
+			"error": errCreateAddress.Error(),
 		})
 		log.Println("CreateAddress: Error create new address in package controller")
 		return

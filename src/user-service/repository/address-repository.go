@@ -19,8 +19,10 @@ func NewAddressRepositoryDefault(db *gorm.DB) *AddressRepositoryDefault {
 }
 
 func (a AddressRepositoryDefault) CreateAddress(address *entity.Address) (*entity.Address, error) {
-	//var newAddress *entity.Address
-	//newAddress.UserId = address.UserId
+	if errCheckEmptyField := address.Validate(); errCheckEmptyField != nil {
+		log.Println("CreateAddress: Error empty field in package repository", errCheckEmptyField)
+		return nil, errCheckEmptyField
+	}
 	result := a.db.Create(&address)
 	if result.Error != nil {
 		log.Println("CreateAddress: Error Create in package repository", result)
