@@ -6,11 +6,8 @@ import (
 	"log"
 )
 
-type AddressRepository interface {
+type IAddressRepository interface {
 	CreateAddress(address *entity.Address) (*entity.Address, error)
-	GetAddressByUserID(userID uint) (*[]entity.Address, error)
-	UpdateAddress(address *entity.Address) (*entity.Address, error)
-	DeleteAddress(address *entity.Address) error
 }
 
 type AddressRepositoryDefault struct {
@@ -22,26 +19,13 @@ func NewAddressRepositoryDefault(db *gorm.DB) *AddressRepositoryDefault {
 }
 
 func (a *AddressRepositoryDefault) CreateAddress(address *entity.Address) (*entity.Address, error) {
-	record := a.db.Create(&address)
-	if record.Error != nil {
-		log.Println("CreateAddress: Create address", record.Error)
-		return address, record.Error
+	var newAddress *entity.Address
+	newAddress.UserId = address.UserId
+	result := a.db.Create(&newAddress)
+	if result.Error != nil {
+		log.Println("CreateAddress: Error Create in package repository", result)
+		return nil, result.Error
 	}
-	return address, nil
-}
+	return newAddress, nil
 
-//
-func (a *AddressRepositoryDefault) GetAddressByUserID(userID uint) (*[]entity.Address, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (a *AddressRepositoryDefault) UpdateAddress(address *entity.Address) (*entity.Address, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (a *AddressRepositoryDefault) DeleteAddress(address *entity.Address) error {
-	//TODO implement me
-	panic("implement me")
 }

@@ -1,16 +1,13 @@
 package controller
 
 import (
-	"chilindo/src/admin-service/helper"
 	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/service"
-	"fmt"
+	"chilindo/src/user-service/token"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type IUserController interface {
@@ -21,11 +18,16 @@ type IUserController interface {
 
 type UserController struct {
 	UserService service.IUserService
-	jwtService  service.JWTService
+	token       *token.Claims
 }
 
-func NewUserControllerDefault(userService service.IUserService, jwtService service.JWTService) *UserController {
-	return &UserController{UserService: userService, jwtService: jwtService}
+func (u UserController) Update(c *gin.Context) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewUserControllerDefault(userService service.IUserService) *UserController {
+	return &UserController{UserService: userService}
 }
 
 func (u UserController) SignUp(ctx *gin.Context) {
@@ -60,7 +62,7 @@ func (u UserController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	tokenString, errGenToken := u.jwtService.GenerateToken(createdUser.ID)
+	tokenString, errGenToken := u.token.GenerateJWT(createdUser.Email, createdUser.ID)
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": errGenToken.Error(),
@@ -96,7 +98,7 @@ func (u *UserController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	tokenString, errGenToken := u.jwtService.GenerateToken(user.ID)
+	tokenString, errGenToken := u.token.GenerateJWT(user.Email, user.ID)
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": errGenToken.Error(),
@@ -108,29 +110,4 @@ func (u *UserController) SignIn(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
 	})
-}
-
-func (u *UserController) Update(context *gin.Context) {
-	var userUpdateDTO *dto.UserUpdateDTO
-	errDTO := context.ShouldBind(&userUpdateDTO)
-	if errDTO != nil {
-		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-		context.AbortWithStatusJSON(http.StatusBadRequest, res)
-		return
-	}
-
-	authHeader := context.GetHeader("Authorization")
-	token, errToken := u.jwtService.ValidateToken(authHeader)
-	if errToken != nil {
-		panic(errToken.Error())
-	}
-	claims := token.Claims.(jwt.MapClaims)
-	id, err := strconv.ParseUint(fmt.Sprintf("%v", claims["user_id"]), 10, 64)
-	if err != nil {
-		panic(err.Error())
-	}
-	userUpdateDTO.ID = id
-	user := u.UserService.Update(userUpdateDTO)
-	res := helper.BuildResponse(true, "OK!", user)
-	context.JSON(http.StatusOK, res)
 }

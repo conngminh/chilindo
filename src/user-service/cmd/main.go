@@ -16,17 +16,18 @@ func main() {
 
 	userRepo := repository.NewUserRepositoryDefault(db)
 	userService := service.NewUserServiceDefault(userRepo)
-	userController := controller.NewUserControllerDefault(userService, service.NewJWTService())
+	userController := controller.NewUserControllerDefault(userService)
 	userRouter := route.NewUserRouteDefault(userController, newRouter)
 	userRouter.GetRouter()
 
 	addressRepo := repository.NewAddressRepositoryDefault(db)
 	addressService := service.NewAddressServiceDefault(addressRepo)
-	addressController := controller.NewAddressControllerDefault(addressService, service.NewJWTService())
+	addressController := controller.NewAddressControllerDefault(addressService)
 	addressRouter := route.NewAddressRouteDefault(addressController, newRouter)
 	addressRouter.GetRouter()
 
-	if err := newRouter.Run(":8080"); err != nil {
+	if err := newRouter.Run(":3000"); err != nil {
+
 		fmt.Println("Open port is fail")
 		return
 	}

@@ -2,6 +2,8 @@ package route
 
 import (
 	"chilindo/src/user-service/controller"
+
+	"chilindo/src/user-service/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,24 +11,26 @@ type IAddressRoute interface {
 	GetRouter()
 }
 
-type AddressRouteDefault struct {
+type AddressRoute struct {
 	AddressController controller.IAddressController
-	Route             *gin.Engine
+	Router            *gin.Engine
+	MW                *middleware.SMiddleWare
 }
 
-func (a *AddressRouteDefault) GetRouter() {
-	newAddressRoute(a.AddressController, a.Route)
+func NewAddressRouteDefault(addressController controller.IAddressController, router *gin.Engine) *AddressRoute {
+	return &AddressRoute{AddressController: addressController, Router: router}
 }
 
-func newAddressRoute(controller controller.IAddressController, group *gin.Engine) {
-	addressRoute := group.Group("/chilindo/address").Use()
+func (a AddressRoute) GetRouter() {
+	addressRoute := a.Router.Group("/chilindo/user/address").Use(a.MW.MiddleWare())
 	{
-		addressRoute.POST("/create", controller.CreateAddress)
-		addressRoute.GET("/get/:id", controller.GetAddressByUserId)
-		addressRoute.PUT("/update", controller.UpdateAddress)
-		addressRoute.DELETE("/delete", controller.DeleteAddress)
+		addressRoute.POST("/create", a.AddressController.CreateAddress)
 	}
 }
-func NewAddressRouteDefault(addressController controller.IAddressController, route *gin.Engine) *AddressRouteDefault {
-	return &AddressRouteDefault{AddressController: addressController, Route: route}
-}
+
+//func newAddressRoute(controller controller.IAddressController, group *gin.Engine) {
+//	addressRoute := group.Group("/chilindo/user/address")
+//	{
+//		addressRoute.POST("/create", controller.CreateAddress)
+//	}
+//}
