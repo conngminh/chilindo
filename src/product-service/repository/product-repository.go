@@ -20,7 +20,6 @@ type productConnection struct {
 }
 
 func (t productConnection) DeleteProduct(b *dto.ProductDTO) (*entity.Product, error) {
-	//TODO implement me
 	var product *entity.Product
 	recordFind := t.connection.Where("id = ?", b.ProductId).Delete(&product)
 	if recordFind.Error != nil {
@@ -31,7 +30,6 @@ func (t productConnection) DeleteProduct(b *dto.ProductDTO) (*entity.Product, er
 }
 
 func (t productConnection) InsertProduct(b *dto.ProductCreatedDTO) (*entity.Product, error) {
-	//TODO implement me
 	record := t.connection.Create(&b.Product)
 	if record.Error != nil {
 		log.Println("Error to create product repo")
@@ -41,7 +39,6 @@ func (t productConnection) InsertProduct(b *dto.ProductCreatedDTO) (*entity.Prod
 }
 
 func (t productConnection) UpdateProduct(b *dto.ProductUpdateDTO) (*entity.Product, error) {
-	//TODO implement me
 	var updateProduct *entity.Product
 	record := t.connection.Where("id = ?", b.ProductId).Find(&updateProduct)
 
@@ -62,7 +59,6 @@ func (t productConnection) UpdateProduct(b *dto.ProductUpdateDTO) (*entity.Produ
 }
 
 func (t productConnection) AllProduct() (*[]entity.Product, error) {
-	//TODO implement me
 	var products *[]entity.Product
 	record := t.connection.Find(&products)
 	if record.Error != nil {
@@ -72,10 +68,7 @@ func (t productConnection) AllProduct() (*[]entity.Product, error) {
 	return products, nil
 }
 
-//
 func (t productConnection) FindProductByID(b *dto.ProductDTO) (*entity.Product, error) {
-
-	//TODO implement me
 	var product *entity.Product
 	record := t.connection.Where("id = ?", b.ProductId).Find(&product)
 	if record.Error != nil {
