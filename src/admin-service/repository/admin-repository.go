@@ -1,69 +1,106 @@
 package repository
 
 import (
-	"chilindo/src/admin-service/entity"
-	"golang.org/x/crypto/bcrypt"
+	"chilindo/src/user-service/dto"
+	"chilindo/src/user-service/entity"
+	"errors"
 	"gorm.io/gorm"
 	"log"
 )
 
-type AdminRepository interface {
-	UpdateAdmin(admin entity.Administrator) entity.Administrator
-	VerifyCredential(email string, password string) interface{}
-	InsertAdmin(admin entity.Administrator) entity.Administrator
-	IsDuplicateEmail(email string) (tx *gorm.DB)
-}
-type adminConnection struct {
-	connection *gorm.DB
-}
-
-func (db *adminConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
-	//TODO implement me
-	var admin entity.Administrator
-	return db.connection.Where("email = ?", email).Take(&admin)
+type IUserRepository interface {
+	VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error)
+	InsertUser(user *entity.User) (*entity.User, error)
+	UpdateUser(user *entity.User) *entity.User
+	IsDuplicateEmail(email string) bool
+	FindByEmail(email string) *entity.User
+	ProfileUser(userID string) *entity.User
 }
 
-func (db *adminConnection) InsertAdmin(admin entity.Administrator) entity.Administrator {
-	//TODO implement me
-	admin.Password = hashAndSalt([]byte(admin.Password))
-	db.connection.Save(&admin)
-	return admin
+type UserRepositoryDefault struct {
+	db *gorm.DB
 }
 
-func (db *adminConnection) VerifyCredential(email string, password string) interface{} {
-	//TODO implement me
-	var admin entity.Administrator
-	res := db.connection.Where("email = ?", email).Take(&admin)
-	if res.Error == nil {
-		return admin
-	}
-	return nil
+func NewUserRepositoryDefault(db *gorm.DB) *UserRepositoryDefault {
+	return &UserRepositoryDefault{db: db}
 }
 
-func NewAdminRepository(db *gorm.DB) AdminRepository {
-	return &adminConnection{
-		connection: db,
-	}
-}
-func (db *adminConnection) UpdateAdmin(admin entity.Administrator) entity.Administrator {
-	//TODO implement me
-	if admin.Password != "" {
-		admin.Password = hashAndSalt([]byte(admin.Password))
-	} else {
-		var tempUser entity.Administrator
-		db.connection.Find(&tempUser, admin.Id)
-		admin.Password = tempUser.Password
+func (u UserRepositoryDefault) InsertUser(user *entity.User) (*entity.User, error) {
+	if errCheckEmptyField := user.Validate("register"); errCheckEmptyField != nil {
+		log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
+		return nil, errCheckEmptyField
 	}
 
-	db.connection.Save(&admin)
-	return admin
+	if errHashPassword := user.HashPassword(user.Password); errHashPassword != nil {
+		log.Println("CreateUser: Error in package repository", errHashPassword)
+		return nil, errHashPassword
+	}
+
+	result := u.db.Create(&user)
+	if result.Error != nil {
+		log.Println("CreateUser: Error in package repository", result.Error)
+		return nil, result.Error
+	}
+	return user, nil
 }
 
-func hashAndSalt(pwd []byte) string {
-	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
-	if err != nil {
-		log.Println(err)
-		panic("Failed to hash a password")
+func (u UserRepositoryDefault) UpdateUser(user *entity.User) *entity.User {
+	//if user.Password != "" {
+	//	user.Password, _ = user.HashPassword(user.Password)
+	//} else {
+	//	var tempUser entity.User
+	//	u.db.Find(&tempUser, user.ID)
+	//	user.Password = tempUser.Password
+	//}
+	//
+	//u.db.Save(&user)
+	return user
+}
+
+func (u UserRepositoryDefault) IsDuplicateEmail(email string) bool {
+	var user *entity.User
+	result := u.db.Where("email = ?", email).Find(&user)
+	if result.Error != nil {
+		return true
 	}
-	return string(hash)
+	return false
+}
+
+func (u UserRepositoryDefault) FindByEmail(email string) *entity.User {
+	var user *entity.User
+	u.db.Where("email = ?", email).Find(&user)
+
+	return user
+}
+
+func (u UserRepositoryDefault) ProfileUser(userID string) *entity.User {
+	var user *entity.User
+	u.db.Preload("Books").Preload("Books.User").Find(&user, userID)
+	return user
+}
+
+func (u UserRepositoryDefault) VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error) {
+	if errCheckEmptyField := loginDTO.Validate("login"); errCheckEmptyField != nil {
+		log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
+		return nil, errCheckEmptyField
+	}
+
+	var user *entity.User
+	res := u.db.Where("email = ?", loginDTO.Email).Find(&user)
+	if res.Error != nil {
+		log.Println("VerifyCredential: Error find username in package repository: ", res.Error)
+
+		return nil, res.Error
+	}
+
+	if len(user.Email) == 0 {
+		err := errors.New("email doesn't exist")
+		return nil, err
+	}
+	if err := user.CheckPassword(loginDTO.Password); err != nil {
+		log.Println("VerifyCredential: Error in check password package repository: ", err.Error())
+		err = errors.New("wrong password")
+		return nil, err
+	}
+	return user, nil
 }

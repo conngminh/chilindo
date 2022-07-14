@@ -24,7 +24,6 @@ func NewProductService(productRepository repository.ProductRepository) *productS
 }
 
 func (t productService) Insert(b *dto.ProductCreatedDTO) (*entity.Product, error) {
-	//TODO implement me
 	createProduct, err := t.ProductRepository.InsertProduct(b)
 	if err != nil {
 		log.Println("Error in create product in service", err)
@@ -34,7 +33,6 @@ func (t productService) Insert(b *dto.ProductCreatedDTO) (*entity.Product, error
 }
 
 func (t productService) Update(b *dto.ProductUpdateDTO) (*entity.Product, error) {
-	//TODO implement me
 	updateProduct, err := t.ProductRepository.UpdateProduct(b)
 	if err != nil {
 		log.Println("Error in package service", err)
@@ -44,7 +42,6 @@ func (t productService) Update(b *dto.ProductUpdateDTO) (*entity.Product, error)
 }
 
 func (t productService) Delete(b *dto.ProductDTO) (*entity.Product, error) {
-	//TODO implement me
 	product, err := t.ProductRepository.DeleteProduct(b)
 	if err != nil {
 		log.Println("Error in package service", err)
@@ -55,7 +52,6 @@ func (t productService) Delete(b *dto.ProductDTO) (*entity.Product, error) {
 
 //
 func (t productService) All() (*[]entity.Product, error) {
-	//TODO implement me
 	products, err := t.ProductRepository.AllProduct()
 	if err != nil {
 		log.Println("GetProducts : Error get products in package service", err)
@@ -64,7 +60,6 @@ func (t productService) All() (*[]entity.Product, error) {
 }
 
 func (t productService) FindProductByID(b *dto.ProductDTO) (*entity.Product, error) {
-	//TODO implement me
 	product, err := t.ProductRepository.FindProductByID(b)
 	if err != nil {
 		log.Println("GetProductById: Error in get product by Id", err)

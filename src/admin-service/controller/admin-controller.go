@@ -1,97 +1,113 @@
 package controller
 
 import (
-	"chilindo/src/admin-service/dto"
-	"chilindo/src/admin-service/entity"
-	"chilindo/src/admin-service/helper"
-	"chilindo/src/admin-service/service"
-	"fmt"
+	"chilindo/src/user-service/dto"
+	"chilindo/src/user-service/entity"
+	"chilindo/src/user-service/service"
+	"chilindo/src/user-service/token"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
+	"log"
 	"net/http"
-	"strconv"
 )
 
-type AdminController interface {
-	Login(ctx *gin.Context)
-	Register(ctx *gin.Context)
-	Update(context *gin.Context)
-}
-type adminController struct {
-	adminService service.AdminService
-	jwtService   service.JWTService
+type IUserController interface {
+	SignIn(c *gin.Context)
+	SignUp(c *gin.Context)
+	Update(c *gin.Context)
 }
 
-func (a *adminController) Login(ctx *gin.Context) {
+type UserController struct {
+	UserService service.IUserService
+	token       *token.Claims
+}
+
+func (u UserController) Update(c *gin.Context) {
 	//TODO implement me
-	var loginDTO dto.LoginDTO
-	errDTO := ctx.ShouldBind(&loginDTO)
-	if errDTO != nil {
-		response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-	authResult := a.adminService.VerifyCredential(loginDTO.Email, loginDTO.Password)
-	if v, ok := authResult.(entity.Administrator); ok {
-		generatedToken := a.jwtService.GenerateToken(strconv.FormatUint(uint64(v.Id), 10))
-		v.Token = generatedToken
-		response := helper.BuildResponse(true, "OK!", v)
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
-	response := helper.BuildErrorResponse("Please check again your credential", "Invalid Credential", helper.EmptyObj{})
-	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+	panic("implement me")
 }
 
-func (a *adminController) Register(ctx *gin.Context) {
-	//TODO implement me
-	var registerDTO dto.RegisterDTO
-	errDTO := ctx.ShouldBind(&registerDTO)
+func NewUserControllerDefault(userService service.IUserService) *UserController {
+	return &UserController{UserService: userService}
+}
+
+func (u UserController) SignUp(ctx *gin.Context) {
+	var newUser *entity.User
+	errDTO := ctx.ShouldBindJSON(&newUser)
+
 	if errDTO != nil {
-		response := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error Binding JSON",
+		})
+		log.Println("SignIn: Error ShouldBindJSON in package controller", errDTO)
+		ctx.Abort()
 		return
 	}
 
-	if !a.adminService.IsDuplicateEmail(registerDTO.Email) {
-		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
-		ctx.JSON(http.StatusConflict, response)
-	} else {
-		createdAdmin := a.adminService.CreateAdmin(registerDTO)
-		token := a.jwtService.GenerateToken(strconv.FormatUint(uint64(createdAdmin.Id), 10))
-		createdAdmin.Token = token
-		response := helper.BuildResponse(true, "OK!", createdAdmin)
-		ctx.JSON(http.StatusCreated, response)
-	}
-}
-
-func (a *adminController) Update(context *gin.Context) {
-	//TODO implement me
-	var adminUpdateDTO dto.AdminUpdateDTO
-	errDTO := context.ShouldBind(&adminUpdateDTO)
-	if errDTO != nil {
-		res := helper.BuildErrorResponse("Failed to process request", errDTO.Error(), helper.EmptyObj{})
-		context.AbortWithStatusJSON(http.StatusBadRequest, res)
+	if u.UserService.IsDuplicateEmail(newUser.Email) {
+		ctx.JSON(http.StatusConflict, gin.H{
+			"error": "email existed",
+		})
+		log.Println("SignUp: email existed", errDTO)
+		ctx.Abort()
 		return
 	}
-	authHeader := context.GetHeader("Authorization")
-	token, errToken := a.jwtService.ValidateToken(authHeader)
-	if errToken != nil {
-		panic(errToken.Error())
+
+	createdUser, errCreate := u.UserService.CreateUser(newUser)
+	if errCreate != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": errCreate.Error(),
+		})
+		log.Println("SignUp: Error in package controller", errDTO)
+		ctx.Abort()
+		return
 	}
-	claims := token.Claims.(jwt.MapClaims)
-	id, err := strconv.ParseUint(fmt.Sprintf("%v", claims["user_id"]), 10, 64)
-	if err != nil {
-		panic(err.Error())
+
+	tokenString, errGenToken := u.token.GenerateJWT(createdUser.Email, createdUser.Id)
+	if errGenToken != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": errGenToken.Error(),
+		})
+		log.Println("SignIn: Error in GenerateJWT in package controller")
+		ctx.Abort()
+		return
 	}
-	adminUpdateDTO.ID = id
-	u := a.adminService.Update(adminUpdateDTO)
-	res := helper.BuildResponse(true, "OK!", u)
-	context.JSON(http.StatusOK, res)
+	createdUser.Token = tokenString
+	ctx.JSON(http.StatusCreated, gin.H{"token": createdUser.Token})
 }
-func NewAdminController(adminService service.AdminService, jwtService service.JWTService) AdminController {
-	return &adminController{
-		adminService: adminService,
-		jwtService:   jwtService,
+
+func (u *UserController) SignIn(ctx *gin.Context) {
+	var loginDTO *dto.UserLoginDTO
+
+	errDTO := ctx.ShouldBindJSON(&loginDTO)
+	if errDTO != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error Binding JSON",
+		})
+		log.Println("SignIn: Error ShouldBindJSON in package controller", errDTO)
+		ctx.Abort()
+		return
 	}
+
+	user, errVerify := u.UserService.VerifyCredential(loginDTO)
+	if errVerify != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"Message": errVerify.Error(),
+		})
+		log.Println("SignIn: Error in UserService.SignIn in package controller")
+		ctx.Abort()
+		return
+	}
+
+	tokenString, errGenToken := u.token.GenerateJWT(user.Email, user.Id)
+	if errGenToken != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Message": errGenToken.Error(),
+		})
+		log.Println("SignIn: Error in GenerateJWT in package controller")
+		ctx.Abort()
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"token": tokenString,
+	})
 }
