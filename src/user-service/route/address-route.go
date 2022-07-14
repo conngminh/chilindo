@@ -25,5 +25,7 @@ func (a AddressRoute) GetRouter() {
 	addressRoute := a.Router.Group("/chilindo/user/address").Use(a.JWTMiddleware.IsAuthenticated())
 	{
 		addressRoute.POST("/create", a.AddressController.CreateAddress)
+		addressRoute.PUT("/update/:id", a.AddressController.UpdateAddress)
+		addressRoute.DELETE("/delete/:id", a.AddressController.UpdateAddress)
 	}
 }

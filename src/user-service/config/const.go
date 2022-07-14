@@ -1,3 +1,6 @@
 package config
 
-const UserId = "UserId"
+const (
+	UserId = "UserId"
+	ID     = "id"
+)
