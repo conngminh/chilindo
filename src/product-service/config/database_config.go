@@ -34,7 +34,7 @@ func ConnectDatabase() {
 	if err != nil {
 		panic(err.Error())
 	}
-	if errConnect := DB.AutoMigrate(&entity.Product{}); errConnect != nil {
+	if errConnect := DB.AutoMigrate(&entity.ProductOption{}, &entity.Product{}, &entity.ProductImages{}); errConnect != nil {
 		panic(errConnect.Error())
 	}
 }

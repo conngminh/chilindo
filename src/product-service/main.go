@@ -11,16 +11,21 @@ import (
 )
 
 var (
-	db                *gorm.DB                     = config.GetDB()
-	productRepository repository.ProductRepository = repository.NewProductRepository(db)
-	productService    service.ProductService       = service.NewProductService(productRepository)
-	productController controller.ProductController = controller.NewProductController(productService)
+	db                      *gorm.DB                           = config.GetDB()
+	productRepository       repository.ProductRepository       = repository.NewProductRepository(db)
+	productImageRepository  repository.ProductImageRepository  = repository.NewProductImageRepository(db)
+	productOptionRepository repository.ProductOptionRepository = repository.NewProductOptionRepository(db)
+	productService          service.ProductService             = service.NewProductService(productRepository)
+	productImageService     service.ProductImageService        = service.ProductImageService(productImageRepository)
+	productOptionService    service.ProductOptionService       = service.NewProductOptionService(productOptionRepository)
+	productController       controller.ProductController       = controller.NewProductController(productService)
+	productImageController  controller.ProductImageController  = controller.NewProductImageController(productImageService)
+	productOptionController controller.ProductOptionController = controller.NewProductOptionController(productOptionService)
 )
 
 func main() {
 	defer config.CloseDatabase(db)
 	r := gin.Default()
-	//, middleware.AuthorizeJWT(jwtService)
 	productRoutes := r.Group("api/product")
 	productRoutes.Use(middleware.Logger())
 	{
@@ -29,6 +34,22 @@ func main() {
 		productRoutes.DELETE("/:productId", productController.Delete)
 		productRoutes.GET("/:productId", productController.FindByID)
 		productRoutes.GET("/", productController.All)
+		productRoutes.POST("/:productId/option", productOptionController.CreateOption)
+		productRoutes.GET("/:productId/option", productOptionController.GetOptions)
+		productRoutes.POST("/:productId/image", productImageController.CreateImage)
+		productRoutes.GET("/:productId/image", productImageController.GetImage)
+
+	}
+	optionRoutes := r.Group("api/option")
+	optionRoutes.Use(middleware.Logger())
+	{
+		optionRoutes.DELETE("/:optionId", productOptionController.DeleteOption)
+		optionRoutes.GET("/:optionId", productOptionController.GetOptionByID)
+	}
+	imageRoutes := r.Group("api/image")
+	imageRoutes.Use(middleware.Logger())
+	{
+
 	}
 	r.Run()
 }

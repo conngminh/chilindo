@@ -53,9 +53,7 @@ func (t productConnection) UpdateProduct(b *dto.ProductUpdateDTO) (*entity.Produ
 		log.Println("Error to update produce repo", recordSave.Error)
 		return nil, recordSave.Error
 	}
-
 	return updateProduct, nil
-
 }
 
 func (t productConnection) AllProduct() (*[]entity.Product, error) {

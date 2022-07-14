@@ -1,0 +1,53 @@
+package service
+
+import (
+	"chilindo/src/product-service/dto"
+	"chilindo/src/product-service/entity"
+	"chilindo/src/product-service/repository"
+	"errors"
+	"log"
+)
+
+type ProductImageService interface {
+	CreateImage(b *dto.CreateImageDTO) (*entity.ProductImages, error)
+	GetImage(b *dto.ProductIdDTO) (*[]entity.ProductImages, error)
+}
+
+func (p productImageService) GetImage(b *dto.ProductIdDTO) (*[]entity.ProductImages, error) {
+	//TODO implement me
+	options, err := p.ProductImageRepository.GetImage(b)
+	if err != nil {
+		log.Println("GetOptions: Error get options", err)
+		return nil, err
+	}
+	return options, nil
+}
+
+func (p productImageService) CreateImage(b *dto.CreateImageDTO) (*entity.ProductImages, error) {
+	//TODO implement me
+	var proDTO dto.ProductDTO
+	proDTO.ProductId = b.Image.ProductId
+	countProd, prodErr := p.ProductImageRepository.ProductImageByID(&proDTO)
+	if prodErr != nil {
+		log.Println("CreateOption: Error not found product to create option", prodErr)
+		return nil, prodErr
+	}
+	if countProd == 0 {
+		log.Println("CreateOption: Error not found product to create option", prodErr)
+		return nil, errors.New("not found product")
+	}
+	image, err := p.ProductImageRepository.CreateImage(b)
+	if err != nil {
+		log.Println("CreateOption: Error to create option", err)
+		return nil, err
+	}
+	return image, nil
+}
+
+type productImageService struct {
+	ProductImageRepository repository.ProductImageRepository
+}
+
+func newProductImageService(productImageRepository repository.ProductImageRepository) *productImageService {
+	return &productImageService{ProductImageRepository: productImageRepository}
+}
