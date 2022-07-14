@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"chilindo/services/admin/helper"
-	"chilindo/services/admin/service"
+	"chilindo/src/admin-service/helper"
+	"chilindo/src/admin-service/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"log"
