@@ -13,3 +13,11 @@ func NewCreateImageDTO(image *entity.ProductImages) *CreateImageDTO {
 type ImageDTO struct {
 	ImageId string
 }
+type UpdateImageDTO struct {
+	Image   *entity.ProductImages
+	ImageId string
+}
+
+func NewUpdateImageDTO(image *entity.ProductImages) *UpdateImageDTO {
+	return &UpdateImageDTO{Image: image}
+}

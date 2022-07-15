@@ -13,6 +13,25 @@ type ProductImageRepository interface {
 	ProductImageByID(b *dto.ProductDTO) (int64, error)
 	GetImageByID(b *dto.ImageDTO) (*entity.ProductImages, error)
 	DeleteImage(b *dto.ImageDTO) (*entity.ProductImages, error)
+	UpdateOption(b *dto.UpdateImageDTO) (*entity.ProductImages, error)
+}
+
+func (p productImageRepository) UpdateOption(b *dto.UpdateImageDTO) (*entity.ProductImages, error) {
+	//TODO implement me
+	var updateImage *entity.ProductImages
+	record := p.connection.Where("id = ?", b.Image.ID).Find(&updateImage)
+
+	if record.Error != nil {
+		log.Println("Error to find product repo", record.Error)
+		return nil, record.Error
+	}
+	updateImage = b.Image
+	recordSave := p.connection.Updates(&updateImage)
+	if recordSave.Error != nil {
+		log.Println("Error to update produce repo", recordSave.Error)
+		return nil, recordSave.Error
+	}
+	return updateImage, nil
 }
 
 func (p productImageRepository) GetImageByID(b *dto.ImageDTO) (*entity.ProductImages, error) {

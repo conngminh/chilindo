@@ -16,7 +16,7 @@ var (
 	productImageRepository  repository.ProductImageRepository  = repository.NewProductImageRepository(db)
 	productOptionRepository repository.ProductOptionRepository = repository.NewProductOptionRepository(db)
 	productService          service.ProductService             = service.NewProductService(productRepository)
-	productImageService     service.ProductImageService        = service.ProductImageService(productImageRepository)
+	productImageService     service.ProductImageService        = service.NewProductImageService(productImageRepository)
 	productOptionService    service.ProductOptionService       = service.NewProductOptionService(productOptionRepository)
 	productController       controller.ProductController       = controller.NewProductController(productService)
 	productImageController  controller.ProductImageController  = controller.NewProductImageController(productImageService)
@@ -45,12 +45,14 @@ func main() {
 	{
 		optionRoutes.DELETE("/:optionId", productOptionController.DeleteOption)
 		optionRoutes.GET("/:optionId", productOptionController.GetOptionByID)
+		optionRoutes.PUT("/:optionId", productOptionController.UpdateOption)
 	}
 	imageRoutes := r.Group("api/image")
 	imageRoutes.Use(middleware.Logger())
 	{
 		imageRoutes.DELETE("/:imageId", productImageController.DeleteImage)
 		imageRoutes.GET("/:imageId", productImageController.GetImageByID)
+		imageRoutes.PUT("/:imageId", productImageController.UpdateImage)
 	}
 	r.Run()
 }

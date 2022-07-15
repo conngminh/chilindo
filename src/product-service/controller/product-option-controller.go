@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -18,8 +19,42 @@ type ProductOptionController interface {
 	GetOptions(c *gin.Context)
 	GetOptionByID(c *gin.Context)
 	DeleteOption(c *gin.Context)
+	UpdateOption(c *gin.Context)
 }
 
+func (p productOptionController) UpdateOption(c *gin.Context) {
+	var optionUpdateBody *entity.ProductOption
+	if err := c.ShouldBindJSON(&optionUpdateBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error to update product",
+		})
+		log.Println("UpdateProduct: Error ShouldBindJSON in package controller", err)
+		c.Abort()
+		return
+	}
+	oid, errCv := strconv.Atoi(c.Param(optionId))
+	if errCv != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error update option",
+		})
+		log.Println("UpdateOption: Error parse param", errCv)
+		c.Abort()
+		return
+	}
+	dtoUpdate := dto.NewUpdateOptionDTO(optionUpdateBody)
+	dtoUpdate.OptionId = optionId
+	dtoUpdate.Option.ID = uint(oid)
+	product, err := p.productOptionService.UpdateOption(dtoUpdate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error to update product",
+		})
+		log.Println("UpdateProduct: Error Update in package controller", err)
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, product)
+}
 func (p productOptionController) CreateOption(c *gin.Context) {
 	var optionBody *entity.ProductOption
 	if err := c.ShouldBindJSON(&optionBody); err != nil {
@@ -43,9 +78,7 @@ func (p productOptionController) CreateOption(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, option)
 }
-
 func (p productOptionController) GetOptions(c *gin.Context) {
-	//TODO implement me
 	id := c.Param(productId)
 	var dto dto.ProductIdDTO
 	dto.ProductId = id

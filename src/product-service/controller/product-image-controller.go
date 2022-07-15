@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -18,10 +19,45 @@ type ProductImageController interface {
 	GetImage(c *gin.Context)
 	GetImageByID(c *gin.Context)
 	DeleteImage(c *gin.Context)
+	UpdateImage(c *gin.Context)
+}
+
+func (p productImageController) UpdateImage(c *gin.Context) {
+	var imageUpdateBody *entity.ProductImages
+	if err := c.ShouldBindJSON(&imageUpdateBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error to update product",
+		})
+		log.Println("UpdateProduct: Error ShouldBindJSON in package controller", err)
+		c.Abort()
+		return
+	}
+	oid, errCv := strconv.Atoi(c.Param(imageId))
+	if errCv != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error update option",
+		})
+		log.Println("UpdateOption: Error parse param", errCv)
+		c.Abort()
+		return
+	}
+	dtoUpdate := dto.NewUpdateImageDTO(imageUpdateBody)
+	dtoUpdate.ImageId = imageId
+	dtoUpdate.Image.ID = uint(oid)
+	product, err := p.productImageService.UpdateImage(dtoUpdate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error to update product",
+		})
+		log.Println("UpdateProduct: Error Update in package controller", err)
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, product)
 }
 
 func (p productImageController) GetImageByID(c *gin.Context) {
-	//TODO implement me
+
 	var dto dto.ImageDTO
 	dto.ImageId = c.Param(imageId)
 	c.Set(imageId, dto.ImageId)
@@ -43,9 +79,7 @@ func (p productImageController) GetImageByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, image)
 }
-
 func (p productImageController) DeleteImage(c *gin.Context) {
-	//TODO implement me
 	oId := c.Param(imageId)
 	var dto dto.ImageDTO
 	dto.ImageId = oId
@@ -60,9 +94,7 @@ func (p productImageController) DeleteImage(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, image)
 }
-
 func (p productImageController) GetImage(c *gin.Context) {
-	//TODO implement me
 	id := c.Param(productId)
 	var dto dto.ProductIdDTO
 	dto.ProductId = id
@@ -86,7 +118,6 @@ func (p productImageController) GetImage(c *gin.Context) {
 }
 
 func (p productImageController) CreateImage(c *gin.Context) {
-	//TODO implement me
 	var imageBody *entity.ProductImages
 	if err := c.ShouldBindJSON(&imageBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
