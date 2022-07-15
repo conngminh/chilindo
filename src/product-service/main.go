@@ -49,7 +49,8 @@ func main() {
 	imageRoutes := r.Group("api/image")
 	imageRoutes.Use(middleware.Logger())
 	{
-
+		imageRoutes.DELETE("/:imageId", productImageController.DeleteImage)
+		imageRoutes.GET("/:imageId", productImageController.GetImageByID)
 	}
 	r.Run()
 }

@@ -11,5 +11,5 @@ func NewCreateImageDTO(image *entity.ProductImages) *CreateImageDTO {
 }
 
 type ImageDTO struct {
-	OptionId string
+	ImageId string
 }

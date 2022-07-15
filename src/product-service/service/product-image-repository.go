@@ -11,6 +11,28 @@ import (
 type ProductImageService interface {
 	CreateImage(b *dto.CreateImageDTO) (*entity.ProductImages, error)
 	GetImage(b *dto.ProductIdDTO) (*[]entity.ProductImages, error)
+	GetImageByID(b *dto.ImageDTO) (*entity.ProductImages, error)
+	DeleteImage(b *dto.ImageDTO) (*entity.ProductImages, error)
+}
+
+func (p productImageService) GetImageByID(b *dto.ImageDTO) (*entity.ProductImages, error) {
+	//TODO implement me
+	image, err := p.ProductImageRepository.GetImageByID(b)
+	if err != nil {
+		log.Println("GetOptionById: Error get option", err)
+		return nil, err
+	}
+	return image, nil
+}
+
+func (p productImageService) DeleteImage(b *dto.ImageDTO) (*entity.ProductImages, error) {
+	//TODO implement me
+	image, err := p.ProductImageRepository.DeleteImage(b)
+	if err != nil {
+		log.Println("DeleteOption: Error delete option", err)
+		return nil, err
+	}
+	return image, nil
 }
 
 func (p productImageService) GetImage(b *dto.ProductIdDTO) (*[]entity.ProductImages, error) {

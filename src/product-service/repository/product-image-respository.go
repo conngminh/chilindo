@@ -11,6 +11,40 @@ type ProductImageRepository interface {
 	CreateImage(b *dto.CreateImageDTO) (*entity.ProductImages, error)
 	GetImage(b *dto.ProductIdDTO) (*[]entity.ProductImages, error)
 	ProductImageByID(b *dto.ProductDTO) (int64, error)
+	GetImageByID(b *dto.ImageDTO) (*entity.ProductImages, error)
+	DeleteImage(b *dto.ImageDTO) (*entity.ProductImages, error)
+}
+
+func (p productImageRepository) GetImageByID(b *dto.ImageDTO) (*entity.ProductImages, error) {
+	//TODO implement me
+	var image *entity.ProductImages
+	var count int64
+	record := p.connection.Where("id = ?", b.ImageId).Find(&image).Count(&count)
+	if record.Error != nil {
+		log.Println("GetOptionById: Error to get option in repo pkg", record.Error)
+		return nil, record.Error
+	}
+	if count == 0 {
+		log.Println("GetOptionById: Not found option", count)
+		return nil, nil
+	}
+	return image, nil
+}
+
+func (p productImageRepository) DeleteImage(b *dto.ImageDTO) (*entity.ProductImages, error) {
+	//TODO implement me
+	var images *entity.ProductImages
+	record := p.connection.Where("id = ?", b.ImageId).Find(&images)
+	if record.Error != nil {
+		log.Println("DeleteOption: Error to find option", record.Error)
+		return nil, record.Error
+	}
+	recordDelete := p.connection.Delete(&images)
+	if recordDelete.Error != nil {
+		log.Println("DeleteOption: Error to delete option", record.Error)
+		return nil, recordDelete.Error
+	}
+	return images, nil
 }
 
 func (p productImageRepository) GetImage(b *dto.ProductIdDTO) (*[]entity.ProductImages, error) {

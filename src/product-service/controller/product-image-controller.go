@@ -9,9 +9,56 @@ import (
 	"net/http"
 )
 
+const (
+	imageId = "imageId"
+)
+
 type ProductImageController interface {
 	CreateImage(c *gin.Context)
 	GetImage(c *gin.Context)
+	GetImageByID(c *gin.Context)
+	DeleteImage(c *gin.Context)
+}
+
+func (p productImageController) GetImageByID(c *gin.Context) {
+	//TODO implement me
+	var dto dto.ImageDTO
+	dto.ImageId = c.Param(imageId)
+	c.Set(imageId, dto.ImageId)
+	image, err := p.productImageService.GetImageByID(&dto)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error get option",
+		})
+		log.Println("GetOptionById: Error call service in pkg controller", err)
+		c.Abort()
+		return
+	}
+	if image == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"Message": "Option not found",
+		})
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, image)
+}
+
+func (p productImageController) DeleteImage(c *gin.Context) {
+	//TODO implement me
+	oId := c.Param(imageId)
+	var dto dto.ImageDTO
+	dto.ImageId = oId
+	image, err := p.productImageService.DeleteImage(&dto)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error to delete option",
+		})
+		log.Println("DeleteOption: Error to parse oId", err)
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, image)
 }
 
 func (p productImageController) GetImage(c *gin.Context) {
