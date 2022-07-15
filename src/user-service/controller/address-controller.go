@@ -2,6 +2,7 @@ package controller
 
 import (
 	"chilindo/src/user-service/config"
+	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/service"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 type IAddressController interface {
 	CreateAddress(c *gin.Context)
 	UpdateAddress(c *gin.Context)
+	GetAddress(c *gin.Context)
 	DeleteAddress(c *gin.Context)
 }
 
@@ -109,6 +111,62 @@ func (a *AddressController) UpdateAddress(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedAddress)
 }
 
-func (a *AddressController) DeleteAddress(c *gin.Context) {
+func (a *AddressController) GetAddress(c *gin.Context) {
+	var dTo dto.GetAddressDTO
+	userId, oke := c.Get(config.UserId)
+	dTo.UserId = userId.(uint)
+	if !oke {
+		c.JSONP(http.StatusBadRequest, gin.H{
+			"Message": "Get Address is fail",
+		})
+		log.Println("GetAddress: Error Get Address in package controller")
+		c.Abort()
+		return
+	}
+	address, err := a.AddressService.GetAddress(&dTo)
+	if err != nil {
+		c.JSONP(http.StatusBadRequest, gin.H{
+			"Message": "Get Address is fail",
+		})
+		log.Println("GetAddress: Error Get Address in package controller")
+		c.Abort()
+		return
+	}
+	c.JSONP(http.StatusOK, address)
+}
 
+func (a *AddressController) DeleteAddress(c *gin.Context) {
+	var dTo dto.GetAddressByIdDTO
+	userId, ok := c.Get(config.UserId)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error create address",
+		})
+		log.Println("CreateAddress: Error Get User ID in package controller")
+		c.Abort()
+		return
+	}
+	addressId, err := strconv.Atoi(c.Param(config.ID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error create address",
+		})
+		log.Println("CreateAddress: Error Get User ID in package controller")
+		c.Abort()
+		return
+	}
+	dTo.AddressId = uint(addressId)
+	dTo.UserId = userId.(uint)
+	errDelete := a.AddressService.DeleteAddress(&dTo)
+	if errDelete != nil {
+		c.JSONP(http.StatusUnauthorized, gin.H{
+			"Message": "Fail to Delete Address",
+		})
+		log.Println("DeleteAddress: Error to delete Address in package controller")
+		c.Abort()
+		return
+	}
+	c.JSONP(http.StatusOK, gin.H{
+		"Message": "success",
+	})
 }

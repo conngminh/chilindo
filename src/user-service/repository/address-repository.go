@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"gorm.io/gorm"
 	"log"
@@ -9,7 +10,8 @@ import (
 type IAddressRepository interface {
 	CreateAddress(address *entity.Address) (*entity.Address, error)
 	UpdateAddress(address *entity.Address) (*entity.Address, error)
-	DeleteAddress(id string) error
+	GetAddress(dto *dto.GetAddressDTO) (*[]entity.Address, error)
+	DeleteAddress(dto *dto.GetAddressByIdDTO) error
 }
 
 type AddressRepositoryDefault struct {
@@ -45,7 +47,7 @@ func (a *AddressRepositoryDefault) UpdateAddress(address *entity.Address) (*enti
 
 	record := a.db.Where("user_id = ? AND id = ?", address.UserId, address.ID).Find(&matchedAddress).Count(&count)
 	if record.Error != nil {
-		log.Println("Error ne thang lol")
+		log.Println("Error update serive in package repository")
 		return nil, record.Error
 	}
 	if count == 0 {
@@ -61,9 +63,19 @@ func (a *AddressRepositoryDefault) UpdateAddress(address *entity.Address) (*enti
 	return matchedAddress, nil
 }
 
-func (a AddressRepositoryDefault) DeleteAddress(id string) error {
+func (a AddressRepositoryDefault) GetAddress(dto *dto.GetAddressDTO) (*[]entity.Address, error) {
+	var address *[]entity.Address
+	result := a.db.Where("user_id = ?", dto.UserId).Find(&address)
+	if result.Error != nil {
+		log.Println("GetAddress: Error Find in package repository", result.Error)
+		return nil, result.Error
+	}
+	return address, nil
+}
+
+func (a AddressRepositoryDefault) DeleteAddress(dto *dto.GetAddressByIdDTO) error {
 	var deleteAddress *entity.Address
-	resultFind := a.db.Where("id = ?", id).Find(&deleteAddress)
+	resultFind := a.db.Where("user_id = ? AND id = ?", dto.UserId, dto.AddressId).Find(&deleteAddress)
 	if resultFind.Error != nil {
 		log.Println("DeleteAddress: Error to find Address  in package repository", resultFind)
 		return resultFind.Error

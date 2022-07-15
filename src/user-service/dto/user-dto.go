@@ -10,6 +10,15 @@ type UserLoginDTO struct {
 	Password string
 }
 
+type GetAddressDTO struct {
+	UserId uint
+}
+
+type GetAddressByIdDTO struct {
+	AddressId uint
+	UserId    uint
+}
+
 type UserUpdateDTO struct {
 	ID        uint64 `json:"id" form:"id"`
 	Firstname string `json:"firstname" form:"name" binding:"required"`

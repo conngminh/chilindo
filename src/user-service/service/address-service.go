@@ -1,6 +1,7 @@
 package service
 
 import (
+	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/repository"
 	"log"
@@ -9,7 +10,8 @@ import (
 type IAddressService interface {
 	CreateAddress(address *entity.Address) (*entity.Address, error)
 	UpdateAddress(address *entity.Address) (*entity.Address, error)
-	DeleteAddress(id string) error
+	GetAddress(dto *dto.GetAddressDTO) (*[]entity.Address, error)
+	DeleteAddress(dto *dto.GetAddressByIdDTO) error
 }
 
 type AddressService struct {
@@ -38,10 +40,19 @@ func (a *AddressService) UpdateAddress(address *entity.Address) (*entity.Address
 	return updateAddress, nil
 }
 
-func (a *AddressService) DeleteAddress(id string) error {
-	err := a.AddressRepository.DeleteAddress(id)
+func (a *AddressService) GetAddress(dto *dto.GetAddressDTO) (*[]entity.Address, error) {
+	address, err := a.AddressRepository.GetAddress(dto)
 	if err != nil {
-		log.Println("DeleteAddress: Error delete address in package service", err)
+		log.Println("GetAddress: Error GetAddress in package address-service", err)
+		return nil, err
+	}
+	return address, nil
+}
+
+func (a *AddressService) DeleteAddress(dto *dto.GetAddressByIdDTO) error {
+	err := a.AddressRepository.DeleteAddress(dto)
+	if err != nil {
+		log.Println("DeletedAddress: Error Delete Address in package service")
 		return err
 	}
 	return nil
