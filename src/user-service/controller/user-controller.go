@@ -1,10 +1,10 @@
 package controller
 
 import (
+	"chilindo/src/pkg/token"
 	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/service"
-	"chilindo/src/user-service/token"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -30,7 +30,7 @@ func NewUserControllerDefault(userService service.IUserService) *UserController 
 	return &UserController{UserService: userService}
 }
 
-func (u UserController) SignUp(ctx *gin.Context) {
+func (u *UserController) SignUp(ctx *gin.Context) {
 	var newUser *entity.User
 	errDTO := ctx.ShouldBindJSON(&newUser)
 

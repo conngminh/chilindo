@@ -26,7 +26,6 @@ type productController struct {
 }
 
 func (p *productController) All(context *gin.Context) {
-	//TODO implement me
 	products, err := p.productService.All()
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{
@@ -64,7 +63,6 @@ func (p *productController) FindByID(context *gin.Context) {
 }
 
 func (p productController) Insert(context *gin.Context) {
-	//TODO implement me
 	var productBody *entity.Product
 	if err := context.ShouldBindJSON(&productBody); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{
@@ -88,7 +86,6 @@ func (p productController) Insert(context *gin.Context) {
 }
 
 func (p productController) Update(context *gin.Context) {
-	//TODO implement me
 	productId := context.Param(productId)
 	var productUpdateBody *entity.Product
 	if err := context.ShouldBindJSON(&productUpdateBody); err != nil {
@@ -116,7 +113,6 @@ func (p productController) Update(context *gin.Context) {
 }
 
 func (p productController) Delete(context *gin.Context) {
-	//TODO implement me
 	var dto dto.ProductDTO
 	fmt.Println(dto.ProductId)
 	dto.ProductId = context.Param(productId)
