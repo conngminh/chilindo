@@ -73,7 +73,7 @@ func (u UserController) SignUp(ctx *gin.Context) {
 	}
 	createdUser.Token = tokenString
 	ctx.JSON(http.StatusCreated, gin.H{"token": createdUser.Token})
-}
+} //done
 
 func (u *UserController) SignIn(ctx *gin.Context) {
 	var loginDTO *dto.UserLoginDTO
