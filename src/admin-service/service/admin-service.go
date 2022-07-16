@@ -1,62 +1,85 @@
 package service
 
 import (
-	"chilindo/src/user-service/dto"
-	"chilindo/src/user-service/entity"
-	"chilindo/src/user-service/repository"
-	"github.com/mashingan/smapping"
+	"chilindo/src/admin-service/dto"
+	"chilindo/src/admin-service/entity"
+	"chilindo/src/admin-service/repository"
+	"chilindo/src/pkg/pb/admin"
+	"chilindo/src/pkg/token"
+	"strings"
+
+	//"github.com/mashingan/smapping"
+
+	//"github.com/mashingan/smapping"
 	"log"
 )
 
-type IUserService interface {
-	Update(user *dto.UserUpdateDTO) *entity.User
-	VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error)
-	CreateUser(user *entity.User) (*entity.User, error)
-	FindByEmail(email string) *entity.User
-	IsDuplicateEmail(email string) bool
+type IAdminService interface {
+	//Update(admin *dto.AdminUpdateDTO) *entity.Admin
+	VerifyCredential(loginDTO *dto.AdminLoginDTO) (*entity.Admin, error)
+	CreateAdmin(admin *entity.Admin) (*entity.Admin, error)
+	IsDuplicateUsername(username string) bool
+	CheckIsAuth(req *admin.CheckIsAuthRequest) (*admin.CheckIsAuthResponse, error)
 }
 
-type UserService struct {
-	UserRepository repository.IUserRepository
+type AdminService struct {
+	AdminRepository repository.IAdminRepository
 }
 
-func NewUserServiceDefault(userRepository repository.IUserRepository) *UserService {
-	return &UserService{UserRepository: userRepository}
+func NewAdminServiceDefault(adminRepository repository.IAdminRepository) *AdminService {
+	return &AdminService{AdminRepository: adminRepository}
 }
-func (u *UserService) VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error) {
-	user, err := u.UserRepository.VerifyCredential(loginDTO)
+func (a *AdminService) VerifyCredential(loginDTO *dto.AdminLoginDTO) (*entity.Admin, error) {
+	admin, err := a.AdminRepository.VerifyCredential(loginDTO)
 
 	if err != nil {
 		log.Println("SignIn: Error VerifyCredential in package service: ", err.Error())
 		return nil, err
 	}
-	return user, nil
+	return admin, nil
 }
 
-func (u *UserService) CreateUser(user *entity.User) (*entity.User, error) {
-	newUser, err := u.UserRepository.InsertUser(user)
+func (a *AdminService) CreateAdmin(admin *entity.Admin) (*entity.Admin, error) {
+	newAdmin, err := a.AdminRepository.InsertAdmin(admin)
 	if err != nil {
 		log.Println("Error: Error in package repository: ", err.Error())
 		return nil, err
 	}
-	return newUser, err
+	return newAdmin, err
 }
 
-func (u *UserService) FindByEmail(email string) *entity.User {
-	return u.UserRepository.FindByEmail(email)
-}
-
-func (u *UserService) IsDuplicateEmail(email string) bool {
-	res := u.UserRepository.IsDuplicateEmail(email)
+func (a *AdminService) IsDuplicateUsername(username string) bool {
+	res := a.AdminRepository.IsDuplicateUsername(username)
 	return res
 }
 
-func (u *UserService) Update(user *dto.UserUpdateDTO) *entity.User {
-	var userToUpdate *entity.User
-	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
+func (a *AdminService) Update(admin *dto.AdminUpdateDTO) *entity.Admin {
+	//var adminToUpdate *entity.Admin
+	//err := smapping.FillStruct(&adminToUpdate, smapping.MapFields(&admin))
+	//if err != nil {
+	//	log.Fatalf("Failed map %v:", err)
+	//}
+	//updatedAdmin := a.AdminRepository.UpdateAdmin(adminToUpdate)
+	return nil
+}
+
+func (u AdminService) CheckIsAuth(req *admin.CheckIsAuthRequest) (*admin.CheckIsAuthResponse, error) {
+	isAuth := false
+	tokenString := req.Token
+
+	tokenResult := strings.TrimPrefix(tokenString, "Bearer ")
+
+	claims, err := token.ExtractToken(tokenResult)
 	if err != nil {
-		log.Fatalf("Failed map %v:", err)
+		log.Println("CheckIsAuth: ", err)
+		return nil, err
 	}
-	updatedUser := u.UserRepository.UpdateUser(userToUpdate)
-	return updatedUser
+
+	if claims != nil {
+		isAuth = true
+	}
+
+	return &admin.CheckIsAuthResponse{
+		IsAuth: isAuth,
+	}, nil
 }

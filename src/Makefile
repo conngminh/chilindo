@@ -1,8 +1,11 @@
-run-usersrv:
-	go run src/user-service/cmd/main/main.go
+run-adminsrv:
+	go run src/admin-service/cmd/main.go
 
 run-productsrv:
-	go run src/product-service/cmd/main/main.go
+	go run src/product-service/cmd/main.go
 
 gen-protoc-admin:
-	protoc --go_out=. --go-grpc_out=. .\pkg\proto\admin.proto
+	protoc --go_out=. --go-grpc_out=. .\src\pkg\proto\admin.proto
+
+gen-protoc-product:
+	protoc --go_out=. --go-grpc_out=. .\src\pkg\proto\product.proto

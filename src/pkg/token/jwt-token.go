@@ -13,16 +13,18 @@ type IJwtMiddleware interface {
 }
 
 type Claims struct {
-	Email  string
-	UserId uint
+	Email    string
+	UserId   uint   //UserId or AdminId
+	Username string //admin's username
 	jwt.StandardClaims
 }
 
-func (j *Claims) GenerateJWT(email string, userid uint) (tokenString string, err error) {
+func (j *Claims) GenerateJWT(email string, userid uint, adminUsername string) (tokenString string, err error) {
 	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
-		Email:  email,
-		UserId: userid,
+		Email:    email,
+		UserId:   userid, //UserId or AdminId
+		Username: adminUsername,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
