@@ -2,49 +2,47 @@ package repository
 
 import (
 	"chilindo/src/admin-service/dto"
-	"chilindo/src/user-service/entity"
+	"chilindo/src/admin-service/entity"
 	"errors"
 	"gorm.io/gorm"
 	"log"
 )
 
-type IUserRepository interface {
-	VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error)
-	InsertUser(user *entity.User) (*entity.User, error)
-	UpdateUser(user *entity.User) *entity.User
-	IsDuplicateEmail(email string) bool
-	FindByEmail(email string) *entity.User
-	ProfileUser(userID string) *entity.User
+type IAdminRepository interface {
+	VerifyCredential(loginDTO *dto.AdminLoginDTO) (*entity.Admin, error)
+	InsertAdmin(admin *entity.Admin) (*entity.Admin, error)
+	UpdateAdmin(admin *entity.Admin) *entity.Admin
+	IsDuplicateUsername(username string) bool
 }
 
-type UserRepositoryDefault struct {
+type AdminRepositoryDefault struct {
 	db *gorm.DB
 }
 
-func NewUserRepositoryDefault(db *gorm.DB) *UserRepositoryDefault {
-	return &UserRepositoryDefault{db: db}
+func NewAdminRepositoryDefault(db *gorm.DB) *AdminRepositoryDefault {
+	return &AdminRepositoryDefault{db: db}
 }
 
-func (u UserRepositoryDefault) InsertUser(user *entity.User) (*entity.User, error) {
-	if errCheckEmptyField := user.Validate("register"); errCheckEmptyField != nil {
+func (a AdminRepositoryDefault) InsertAdmin(admin *entity.Admin) (*entity.Admin, error) {
+	if errCheckEmptyField := admin.Validate("register"); errCheckEmptyField != nil {
 		log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
 		return nil, errCheckEmptyField
 	}
 
-	if errHashPassword := user.HashPassword(user.Password); errHashPassword != nil {
+	if errHashPassword := admin.HashPassword(admin.Password); errHashPassword != nil {
 		log.Println("CreateUser: Error in package repository", errHashPassword)
 		return nil, errHashPassword
 	}
 
-	result := u.db.Create(&user)
+	result := a.db.Create(&admin)
 	if result.Error != nil {
 		log.Println("CreateUser: Error in package repository", result.Error)
 		return nil, result.Error
 	}
-	return user, nil
+	return admin, nil
 }
 
-func (u UserRepositoryDefault) UpdateUser(user *entity.User) *entity.User {
+func (u AdminRepositoryDefault) UpdateAdmin(admin *entity.Admin) *entity.Admin {
 	//if user.Password != "" {
 	//	user.Password, _ = user.HashPassword(user.Password)
 	//} else {
@@ -54,53 +52,40 @@ func (u UserRepositoryDefault) UpdateUser(user *entity.User) *entity.User {
 	//}
 	//
 	//u.db.Save(&user)
-	return user
+	return admin
 }
 
-func (u UserRepositoryDefault) IsDuplicateEmail(email string) bool {
-	var user *entity.User
-	result := u.db.Where("email = ?", email).Find(&user)
+func (a AdminRepositoryDefault) IsDuplicateUsername(username string) bool {
+	var admin *entity.Admin
+	result := a.db.Where("username = ?", username).Find(&admin)
 	if result.Error != nil {
 		return true
 	}
 	return false
 }
 
-func (u UserRepositoryDefault) FindByEmail(email string) *entity.User {
-	var user *entity.User
-	u.db.Where("email = ?", email).Find(&user)
-
-	return user
-}
-
-func (u UserRepositoryDefault) ProfileUser(userID string) *entity.User {
-	var user *entity.User
-	u.db.Preload("Books").Preload("Books.User").Find(&user, userID)
-	return user
-}
-
-func (u UserRepositoryDefault) VerifyCredential(loginDTO *dto.UserLoginDTO) (*entity.User, error) {
+func (a AdminRepositoryDefault) VerifyCredential(loginDTO *dto.AdminLoginDTO) (*entity.Admin, error) {
 	if errCheckEmptyField := loginDTO.Validate("login"); errCheckEmptyField != nil {
 		log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
 		return nil, errCheckEmptyField
 	}
 
-	var user *entity.User
-	res := u.db.Where("email = ?", loginDTO.Email).Find(&user)
+	var admin *entity.Admin
+	res := a.db.Where("username = ?", loginDTO.Username).Find(&admin)
 	if res.Error != nil {
 		log.Println("VerifyCredential: Error find username in package repository: ", res.Error)
 
 		return nil, res.Error
 	}
 
-	if len(user.Email) == 0 {
-		err := errors.New("email doesn't exist")
+	if len(admin.Username) == 0 {
+		err := errors.New("username doesn't exist")
 		return nil, err
 	}
-	if err := user.CheckPassword(loginDTO.Password); err != nil {
+	if err := admin.CheckPassword(loginDTO.Password); err != nil {
 		log.Println("VerifyCredential: Error in check password package repository: ", err.Error())
 		err = errors.New("wrong password")
 		return nil, err
 	}
-	return user, nil
+	return admin, nil
 }

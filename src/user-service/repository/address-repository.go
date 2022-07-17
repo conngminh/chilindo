@@ -33,7 +33,6 @@ func (a AddressRepositoryDefault) CreateAddress(address *entity.Address) (*entit
 		return nil, result.Error
 	}
 	return address, nil
-
 }
 
 func (a *AddressRepositoryDefault) UpdateAddress(address *entity.Address) (*entity.Address, error) {

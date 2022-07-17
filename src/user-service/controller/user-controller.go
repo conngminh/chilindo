@@ -1,10 +1,10 @@
 package controller
 
 import (
+	"chilindo/src/pkg/token"
 	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/service"
-	"chilindo/src/user-service/token"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -30,7 +30,7 @@ func NewUserControllerDefault(userService service.IUserService) *UserController 
 	return &UserController{UserService: userService}
 }
 
-func (u UserController) SignUp(ctx *gin.Context) {
+func (u *UserController) SignUp(ctx *gin.Context) {
 	var newUser *entity.User
 	errDTO := ctx.ShouldBindJSON(&newUser)
 
@@ -62,7 +62,7 @@ func (u UserController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	tokenString, errGenToken := u.token.GenerateJWT(createdUser.Email, createdUser.Id)
+	tokenString, errGenToken := u.token.GenerateJWT(createdUser.Email, createdUser.Id, "")
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": errGenToken.Error(),
@@ -98,7 +98,7 @@ func (u *UserController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	tokenString, errGenToken := u.token.GenerateJWT(user.Email, user.Id)
+	tokenString, errGenToken := u.token.GenerateJWT(user.Email, user.Id, "")
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": errGenToken.Error(),

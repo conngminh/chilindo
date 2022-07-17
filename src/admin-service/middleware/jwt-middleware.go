@@ -1,8 +1,8 @@
 package middleware
 
 import (
+	"chilindo/src/pkg/token"
 	"chilindo/src/user-service/config"
-	"chilindo/src/user-service/token"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"

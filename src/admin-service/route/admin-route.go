@@ -1,25 +1,25 @@
 package route
 
 import (
-	"chilindo/src/user-service/controller"
+	"chilindo/src/admin-service/controller"
 	"github.com/gin-gonic/gin"
 )
 
-type IUserRoute interface {
+type IAdminRoute interface {
 	GetRouter()
 }
 
-type UserRouteDefault struct {
-	UserController controller.IUserController
-	Router         *gin.Engine
+type AdminRouteDefault struct {
+	AdminController controller.IAdminController
+	Router          *gin.Engine
 }
 
-func (u *UserRouteDefault) GetRouter() {
-	newUserRoute(u.UserController, u.Router)
+func (a *AdminRouteDefault) GetRouter() {
+	newAdminRoute(a.AdminController, a.Router)
 }
 
-func newUserRoute(controller controller.IUserController, group *gin.Engine) {
-	userRoute := group.Group("/chilindo/user")
+func newAdminRoute(controller controller.IAdminController, group *gin.Engine) {
+	userRoute := group.Group("/chilindo/admin")
 	{
 		userRoute.POST("/sign-up", controller.SignUp)
 		userRoute.POST("/sign-in", controller.SignIn)
@@ -30,6 +30,6 @@ func newUserRoute(controller controller.IUserController, group *gin.Engine) {
 	//}
 }
 
-func NewUserRouteDefault(userController controller.IUserController, router *gin.Engine) *UserRouteDefault {
-	return &UserRouteDefault{UserController: userController, Router: router}
+func NewAdminRouteDefault(adminController controller.IAdminController, router *gin.Engine) *AdminRouteDefault {
+	return &AdminRouteDefault{AdminController: adminController, Router: router}
 }

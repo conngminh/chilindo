@@ -93,3 +93,4 @@ func (mr *MockIAddressServiceMockRecorder) UpdateAddress(address interface{}) *g
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAddress", reflect.TypeOf((*MockIAddressService)(nil).UpdateAddress), address)
 }
+

@@ -12,6 +12,7 @@ type Admin struct {
 	Id         uint   `json:"id" gorm:"primaryKey"`
 	Username   string `json:"username" gorm:"type:nvarchar(100)"`
 	Password   string `json:"password" gorm:"type:nvarchar(100);not null"`
+	Token      string `gorm:"-" json:"token,omitempty"`
 }
 
 func (user *Admin) HashPassword(password string) error {
@@ -44,7 +45,7 @@ func (user *Admin) Validate(action string) error {
 	switch strings.ToLower(action) {
 	case "login":
 		if len(strings.TrimSpace(user.Username)) == 0 {
-			return errors.New("required email")
+			return errors.New("required username")
 		}
 		if len(strings.TrimSpace(user.Password)) == 0 {
 			return errors.New("required password")
@@ -52,7 +53,7 @@ func (user *Admin) Validate(action string) error {
 		return nil
 	case "register":
 		if len(strings.TrimSpace(user.Username)) == 0 {
-			return errors.New("required email")
+			return errors.New("required username")
 		}
 		if len(strings.TrimSpace(user.Password)) == 0 {
 			return errors.New("required password")
@@ -60,7 +61,7 @@ func (user *Admin) Validate(action string) error {
 		return nil
 	default:
 		if len(strings.TrimSpace(user.Username)) == 0 {
-			return errors.New("required email")
+			return errors.New("required username")
 		}
 		if len(strings.TrimSpace(user.Password)) == 0 {
 			return errors.New("required password")

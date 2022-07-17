@@ -1,38 +1,37 @@
 package controller
 
 import (
-	"chilindo/src/user-service/dto"
-	"chilindo/src/user-service/entity"
-	"chilindo/src/user-service/service"
-	"chilindo/src/user-service/token"
+	"chilindo/src/admin-service/dto"
+	"chilindo/src/admin-service/entity"
+	"chilindo/src/admin-service/service"
+	"chilindo/src/pkg/token"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 )
 
-type IUserController interface {
+type IAdminController interface {
 	SignIn(c *gin.Context)
 	SignUp(c *gin.Context)
-	Update(c *gin.Context)
+	//Update(c *gin.Context)
 }
 
-type UserController struct {
-	UserService service.IUserService
-	token       *token.Claims
+type AdminController struct {
+	AdminService service.IAdminService
+	token        *token.Claims
 }
 
-func (u UserController) Update(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+func (a AdminController) Update(c *gin.Context) {
+
 }
 
-func NewUserControllerDefault(userService service.IUserService) *UserController {
-	return &UserController{UserService: userService}
+func NewAdminControllerDefault(adminService service.IAdminService) *AdminController {
+	return &AdminController{AdminService: adminService}
 }
 
-func (u UserController) SignUp(ctx *gin.Context) {
-	var newUser *entity.User
-	errDTO := ctx.ShouldBindJSON(&newUser)
+func (a AdminController) SignUp(ctx *gin.Context) {
+	var newAdmin *entity.Admin
+	errDTO := ctx.ShouldBindJSON(&newAdmin)
 
 	if errDTO != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -43,16 +42,16 @@ func (u UserController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	if u.UserService.IsDuplicateEmail(newUser.Email) {
+	if a.AdminService.IsDuplicateUsername(newAdmin.Username) {
 		ctx.JSON(http.StatusConflict, gin.H{
-			"error": "email existed",
+			"error": "username existed",
 		})
-		log.Println("SignUp: email existed", errDTO)
+		log.Println("SignUp: username existed", errDTO)
 		ctx.Abort()
 		return
 	}
 
-	createdUser, errCreate := u.UserService.CreateUser(newUser)
+	createdAdmin, errCreate := a.AdminService.CreateAdmin(newAdmin)
 	if errCreate != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": errCreate.Error(),
@@ -62,7 +61,7 @@ func (u UserController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	tokenString, errGenToken := u.token.GenerateJWT(createdUser.Email, createdUser.Id)
+	tokenString, errGenToken := a.token.GenerateJWT("", createdAdmin.Id, createdAdmin.Username)
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": errGenToken.Error(),
@@ -71,12 +70,12 @@ func (u UserController) SignUp(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-	createdUser.Token = tokenString
-	ctx.JSON(http.StatusCreated, gin.H{"token": createdUser.Token})
+	createdAdmin.Token = tokenString
+	ctx.JSON(http.StatusCreated, gin.H{"token": createdAdmin.Token})
 }
 
-func (u *UserController) SignIn(ctx *gin.Context) {
-	var loginDTO *dto.UserLoginDTO
+func (a *AdminController) SignIn(ctx *gin.Context) {
+	var loginDTO *dto.AdminLoginDTO
 
 	errDTO := ctx.ShouldBindJSON(&loginDTO)
 	if errDTO != nil {
@@ -88,7 +87,7 @@ func (u *UserController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	user, errVerify := u.UserService.VerifyCredential(loginDTO)
+	admin, errVerify := a.AdminService.VerifyCredential(loginDTO)
 	if errVerify != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"Message": errVerify.Error(),
@@ -98,7 +97,7 @@ func (u *UserController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	tokenString, errGenToken := u.token.GenerateJWT(user.Email, user.Id)
+	tokenString, errGenToken := a.token.GenerateJWT("", admin.Id, admin.Username)
 	if errGenToken != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": errGenToken.Error(),

@@ -13,7 +13,7 @@ var (
 	host     string = "localhost"
 	port     string = "3306"
 	username string = "root"
-	password string = "Bogia3110"
+	password string = "Ledoan070899"
 	database string = "chilindo"
 )
 var connectString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -34,7 +34,7 @@ func ConnectDatabase() {
 	if err != nil {
 		panic(err.Error())
 	}
-	if errConnect := DB.AutoMigrate(&entity.Product{}); errConnect != nil {
+	if errConnect := DB.AutoMigrate(&entity.ProductOption{}, &entity.Product{}, &entity.ProductImages{}); errConnect != nil {
 		panic(errConnect.Error())
 	}
 }
