@@ -11,6 +11,7 @@ type IAddressService interface {
 	CreateAddress(address *entity.Address) (*entity.Address, error)
 	UpdateAddress(address *entity.Address) (*entity.Address, error)
 	GetAddress(dto *dto.GetAddressDTO) (*[]entity.Address, error)
+	GetAddressById(dto *dto.GetAddressByIdDTO) (*entity.Address, error)
 	DeleteAddress(dto *dto.GetAddressByIdDTO) error
 }
 
@@ -56,4 +57,13 @@ func (a *AddressService) DeleteAddress(dto *dto.GetAddressByIdDTO) error {
 		return err
 	}
 	return nil
+}
+
+func (a *AddressService) GetAddressById(dto *dto.GetAddressByIdDTO) (*entity.Address, error) {
+	address, err := a.AddressRepository.GetAddressById(dto)
+	if err != nil {
+		log.Println("GetAddressById: Error in get address by id in package uer-service", err)
+		return nil, err
+	}
+	return address, nil
 }
