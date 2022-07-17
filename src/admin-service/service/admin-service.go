@@ -29,6 +29,7 @@ type AdminService struct {
 func NewAdminServiceDefault(adminRepository repository.IAdminRepository) *AdminService {
 	return &AdminService{AdminRepository: adminRepository}
 }
+
 func (a *AdminService) VerifyCredential(loginDTO *dto.AdminLoginDTO) (*entity.Admin, error) {
 	admin, err := a.AdminRepository.VerifyCredential(loginDTO)
 

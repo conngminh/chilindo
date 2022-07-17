@@ -11,6 +11,7 @@ type IAddressRepository interface {
 	CreateAddress(address *entity.Address) (*entity.Address, error)
 	UpdateAddress(address *entity.Address) (*entity.Address, error)
 	GetAddress(dto *dto.GetAddressDTO) (*[]entity.Address, error)
+	GetAddressById(dto *dto.GetAddressByIdDTO) (*entity.Address, error)
 	DeleteAddress(dto *dto.GetAddressByIdDTO) error
 }
 
@@ -33,7 +34,6 @@ func (a AddressRepositoryDefault) CreateAddress(address *entity.Address) (*entit
 		return nil, result.Error
 	}
 	return address, nil
-
 }
 
 func (a *AddressRepositoryDefault) UpdateAddress(address *entity.Address) (*entity.Address, error) {
@@ -86,4 +86,14 @@ func (a AddressRepositoryDefault) DeleteAddress(dto *dto.GetAddressByIdDTO) erro
 		return resultDelete.Error
 	}
 	return nil
+}
+
+func (a AddressRepositoryDefault) GetAddressById(dto *dto.GetAddressByIdDTO) (*entity.Address, error) {
+	var address *entity.Address
+	result := a.db.Where("id = ? And user_id =?", dto.AddressId, dto.UserId).Find(&address)
+	if result.Error != nil {
+		log.Println("GetAddress: Error Find in package repository", result.Error)
+		return nil, result.Error
+	}
+	return address, nil
 }

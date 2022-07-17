@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"chilindo/src/user-service/entity"
 	service "chilindo/src/user-service/service/mocks"
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,43 @@ func createTestUser(t *testing.T) (*service.MockIUserService, *UserController) {
 	mockSrv := service.NewMockIUserService(ctr)
 	userCtr := NewUserControllerDefault(mockSrv)
 	return mockSrv, userCtr
+}
+
+func TestUserController_SignIn(t *testing.T) {
+	mockSvc, authCtr := createTestUser(t)
+
+	mockSvc.EXPECT().VerifyCredential(gomock.Any()).Return(&entity.User{
+		Model:     gorm.Model{},
+		Id:        1,
+		Firstname: "",
+		Lastname:  "",
+		Password:  "",
+		Birthday:  "",
+		Phone:     "",
+		Email:     "",
+		Gender:    true,
+		Country:   "",
+		Language:  "",
+		Token:     "",
+	}, nil).Times(1)
+
+	body := []byte("{}")
+
+	req, err := http.NewRequest("POST", "chilindo/user/sign-in", bytes.NewBuffer(body))
+
+	if err != nil {
+		t.Fatalf("Error")
+	}
+	w := httptest.NewRecorder()
+
+	c, _ := gin.CreateTestContext(w)
+
+	c.Request = req
+
+	authCtr.SignIn(c)
+	if w.Code != http.StatusOK {
+		t.Fatalf("200 but got %v", w.Code)
+	}
 }
 
 func TestUserController_SignUp(t *testing.T) {

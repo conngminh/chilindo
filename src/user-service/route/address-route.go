@@ -27,6 +27,7 @@ func (a AddressRoute) GetRouter() {
 		addressRoute.POST("/create", a.AddressController.CreateAddress)
 		addressRoute.PUT("/update/:id", a.AddressController.UpdateAddress)
 		addressRoute.DELETE("/delete/:id", a.AddressController.DeleteAddress)
-		addressRoute.GET("/address", a.AddressController.GetAddress)
+		addressRoute.GET("/getaddress", a.AddressController.GetAddress)
+		addressRoute.GET("/getaddress/:id", a.AddressController.GetAddressById)
 	}
 }

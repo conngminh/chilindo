@@ -16,6 +16,7 @@ type IAddressController interface {
 	CreateAddress(c *gin.Context)
 	UpdateAddress(c *gin.Context)
 	GetAddress(c *gin.Context)
+	GetAddressById(c *gin.Context)
 	DeleteAddress(c *gin.Context)
 }
 
@@ -50,6 +51,7 @@ func (a *AddressController) CreateAddress(ctx *gin.Context) {
 	}
 
 	newAddress.UserId = userId.(uint)
+
 	createdAddress, errCreateAddress := a.AddressService.CreateAddress(newAddress)
 	if errCreateAddress != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -169,4 +171,38 @@ func (a *AddressController) DeleteAddress(c *gin.Context) {
 	c.JSONP(http.StatusOK, gin.H{
 		"Message": "success",
 	})
+}
+
+func (a *AddressController) GetAddressById(c *gin.Context) {
+	var dTo dto.GetAddressByIdDTO
+	userId, ok := c.Get(config.UserId)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error create address",
+		})
+		log.Println("CreateAddress: Error Get User ID in package controller")
+		c.Abort()
+		return
+	}
+	addressId, err := strconv.Atoi(c.Param(config.ID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": "Error create address",
+		})
+		log.Println("CreateAddress: Error Get User ID in package controller")
+		c.Abort()
+		return
+	}
+	dTo.AddressId = uint(addressId)
+	dTo.UserId = userId.(uint)
+	address, err := a.AddressService.GetAddressById(&dTo)
+	if err != nil {
+		c.JSONP(http.StatusBadRequest, gin.H{
+			"Message": "Get Address by ID fail",
+		})
+		log.Println("GetAddressById: Error in package controllers", err)
+		c.Abort()
+		return
+	}
+	c.JSONP(http.StatusOK, address)
 }

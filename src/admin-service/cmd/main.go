@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	addr = ":50051"
+	adminClientPort = ":50051"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 		fmt.Println("Server is opened on port 8080")
 	}()
 
-	lis, err := net.Listen("tcp", addr)
+	lis, err := net.Listen("tcp", adminClientPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
