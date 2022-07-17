@@ -79,6 +79,21 @@ func (mr *MockIAddressServiceMockRecorder) GetAddress(dto interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAddress", reflect.TypeOf((*MockIAddressService)(nil).GetAddress), dto)
 }
 
+// GetAddressById mocks base method.
+func (m *MockIAddressService) GetAddressById(dto *dto.GetAddressByIdDTO) (*entity.Address, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAddressById", dto)
+	ret0, _ := ret[0].(*entity.Address)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAddressById indicates an expected call of GetAddressById.
+func (mr *MockIAddressServiceMockRecorder) GetAddressById(dto interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAddressById", reflect.TypeOf((*MockIAddressService)(nil).GetAddressById), dto)
+}
+
 // UpdateAddress mocks base method.
 func (m *MockIAddressService) UpdateAddress(address *entity.Address) (*entity.Address, error) {
 	m.ctrl.T.Helper()
@@ -93,4 +108,3 @@ func (mr *MockIAddressServiceMockRecorder) UpdateAddress(address interface{}) *g
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAddress", reflect.TypeOf((*MockIAddressService)(nil).UpdateAddress), address)
 }
-

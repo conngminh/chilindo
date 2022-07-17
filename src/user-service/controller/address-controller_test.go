@@ -153,3 +153,37 @@ func TestAddressController_UpdateAddress(t *testing.T) {
 		t.Fatalf("Status expected is 200 but %v", rr.Code)
 	}
 }
+
+func TestAddressController_GetAddressById(t *testing.T) {
+	mockSvr, userCtr := CreateTestAddress(t)
+	mockSvr.EXPECT().GetAddressById(gomock.Any()).Return(&entity.Address{
+		Model:       gorm.Model{},
+		Firstname:   "",
+		Lastname:    "",
+		Phone:       "",
+		Province:    "",
+		District:    "",
+		SubDistrict: "",
+		Address:     "",
+		TypeAddress: "",
+		UserId:      0,
+		User:        entity.User{},
+	}, nil).Times(1)
+
+	req, err := http.NewRequest("GET", "chilindo/user/address/getaddress/:id", nil)
+
+	if err != nil {
+		t.Fatalf("Error")
+	}
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	c.Request = req
+	c.Params = []gin.Param{gin.Param{Key: "id", Value: "1"}}
+	c.Set(config.UserId, uint(1))
+	userCtr.GetAddressById(c)
+	if w.Code != http.StatusOK {
+		t.Fatalf("200 but got %v", w.Code)
+	}
+}
