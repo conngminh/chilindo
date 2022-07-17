@@ -57,7 +57,7 @@ func TestAddressController_CreateAddress(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("200 but got %v", w.Code)
 	}
-} //done
+}
 
 func TestAddressController_GetAddress(t *testing.T) {
 	mockSvr, userCtr := CreateTestAddress(t)
@@ -92,7 +92,7 @@ func TestAddressController_GetAddress(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("200 but got %v", w.Code)
 	}
-} //done
+}
 
 func TestAddressController_DeleteAddress(t *testing.T) {
 	mockSvc, addressCtl := CreateTestAddress(t)
@@ -112,7 +112,7 @@ func TestAddressController_DeleteAddress(t *testing.T) {
 	if rr.Code != http.StatusOK {
 		t.Fatalf("Status is expected 200 but %v", rr.Code)
 	}
-} //done
+}
 
 func TestAddressController_UpdateAddress(t *testing.T) {
 	mockSvc, addressCtl := CreateTestAddress(t)
@@ -152,4 +152,4 @@ func TestAddressController_UpdateAddress(t *testing.T) {
 	if rr.Code != http.StatusOK {
 		t.Fatalf("Status expected is 200 but %v", rr.Code)
 	}
-} //done
+}
