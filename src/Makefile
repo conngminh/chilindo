@@ -9,3 +9,4 @@ gen-protoc-admin:
 
 gen-protoc-product:
 	protoc --go_out=. --go-grpc_out=. .\src\pkg\proto\product.proto
+
