@@ -41,7 +41,7 @@ func TestUserController_SignIn(t *testing.T) {
 
 	body := []byte("{}")
 
-	req, err := http.NewRequest("POST", "api/auth/signin", bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", "chilindo/user/sign-in", bytes.NewBuffer(body))
 
 	if err != nil {
 		t.Fatalf("Error")
