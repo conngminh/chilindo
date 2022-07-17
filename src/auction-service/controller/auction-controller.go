@@ -43,7 +43,7 @@ func (a AuctionController) CreateAuction(c *gin.Context) {
 		return
 	}
 
-	if res.GetIsFound() == false {
+	if res.Id == "" {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Message": "Not found product",
 		})
@@ -53,6 +53,7 @@ func (a AuctionController) CreateAuction(c *gin.Context) {
 	}
 
 	auctionBody.ProductId = res.GetId()
+
 	createdAuction, errCreateAuction := a.AuctionService.CreateAuction(auctionBody)
 	if errCreateAuction != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
