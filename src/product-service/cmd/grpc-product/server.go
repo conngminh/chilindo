@@ -2,7 +2,6 @@ package grpc_product
 
 import (
 	"chilindo/src/pkg/pb/product"
-	"context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"log"
@@ -35,21 +34,4 @@ func RunGRPCServer(enabledTLS bool, lis net.Listener) error {
 
 	log.Printf("listening on %s\n", addr)
 	return s.Serve(lis)
-}
-
-func (p *ProductServer) GetProduct(ctx context.Context, in *product.GetProductRequest) (*product.GetProductResponse, error) {
-	//log.Printf("Login request: %v\n", in)
-	//
-	//res, err := a.AuthService.CheckIsAdmin(in)
-	//
-	//if err != nil {
-	//	return nil, status.Errorf(codes.Internal, "Internal error: %v", err)
-	//}
-	//
-	//if res == nil {
-	//	return nil, status.Errorf(codes.NotFound, "User not found")
-	//}
-	//
-	//return res, nil
-	return nil, nil
 }

@@ -77,6 +77,7 @@ type GetProductResponse struct {
 	Price       string `protobuf:"bytes,3,opt,name=Price,proto3" json:"Price,omitempty"`
 	Description string `protobuf:"bytes,4,opt,name=Description,proto3" json:"Description,omitempty"`
 	Quantity    int32  `protobuf:"varint,5,opt,name=Quantity,proto3" json:"Quantity,omitempty"`
+	IsFound     bool   `protobuf:"varint,6,opt,name=isFound,proto3" json:"isFound,omitempty"`
 }
 
 func (x *GetProductResponse) Reset() {
@@ -145,6 +146,14 @@ func (x *GetProductResponse) GetQuantity() int32 {
 	}
 	return 0
 }
+
+func (x *GetProductResponse) GetIsFound() bool {
+	if x != nil {
+		return x.IsFound
+	}
+	return false
+}
+
 
 var File_src_pkg_proto_product_proto protoreflect.FileDescriptor
 
