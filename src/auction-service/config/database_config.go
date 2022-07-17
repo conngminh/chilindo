@@ -1,7 +1,7 @@
 package config
 
 import (
-	"chilindo/src/product-service/entity"
+	"chilindo/src/auction-service/entity"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -34,7 +34,7 @@ func ConnectDatabase() {
 	if err != nil {
 		panic(err.Error())
 	}
-	if errConnect := DB.AutoMigrate(&entity.ProductOption{}, &entity.Product{}, &entity.ProductImages{}); errConnect != nil {
+	if errConnect := DB.AutoMigrate(&entity.Auction{}); errConnect != nil {
 		panic(errConnect.Error())
 	}
 }

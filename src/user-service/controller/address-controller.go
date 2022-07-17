@@ -51,6 +51,7 @@ func (a *AddressController) CreateAddress(ctx *gin.Context) {
 	}
 
 	newAddress.UserId = userId.(uint)
+
 	createdAddress, errCreateAddress := a.AddressService.CreateAddress(newAddress)
 	if errCreateAddress != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
