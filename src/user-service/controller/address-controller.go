@@ -162,7 +162,7 @@ func (a *AddressController) DeleteAddress(c *gin.Context) {
 	errDelete := a.AddressService.DeleteAddress(&dTo)
 	if errDelete != nil {
 		c.JSONP(http.StatusUnauthorized, gin.H{
-			"Message": "Fail to Delete Address",
+			"Message": "DeleteAddress: not exist id address to delete",
 		})
 		log.Println("DeleteAddress: Error to delete Address in package controller")
 		c.Abort()

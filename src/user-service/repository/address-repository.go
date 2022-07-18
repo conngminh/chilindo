@@ -3,6 +3,7 @@ package repository
 import (
 	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
+	"errors"
 	"gorm.io/gorm"
 	"log"
 )
@@ -90,10 +91,14 @@ func (a AddressRepositoryDefault) DeleteAddress(dto *dto.GetAddressByIdDTO) erro
 
 func (a AddressRepositoryDefault) GetAddressById(dto *dto.GetAddressByIdDTO) (*entity.Address, error) {
 	var address *entity.Address
-	result := a.db.Where("id = ? And user_id =?", dto.AddressId, dto.UserId).Find(&address)
+	var count int64
+	result := a.db.Where("id = ? And user_id =?", dto.AddressId, dto.UserId).Find(&address).Count(&count)
 	if result.Error != nil {
 		log.Println("GetAddress: Error Find in package repository", result.Error)
 		return nil, result.Error
+	}
+	if count == 0 {
+		return nil, errors.New("not found address")
 	}
 	return address, nil
 }

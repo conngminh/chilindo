@@ -3,6 +3,7 @@ package repository
 import (
 	"chilindo/src/product-service/dto"
 	"chilindo/src/product-service/entity"
+	"errors"
 	"gorm.io/gorm"
 	"log"
 )
@@ -13,17 +14,21 @@ type ProductImageRepository interface {
 	ProductImageByID(b *dto.ProductDTO) (int64, error)
 	GetImageByID(b *dto.ImageDTO) (*entity.ProductImages, error)
 	DeleteImage(b *dto.ImageDTO) (*entity.ProductImages, error)
-	UpdateOption(b *dto.UpdateImageDTO) (*entity.ProductImages, error)
+	UpdateImage(b *dto.UpdateImageDTO) (*entity.ProductImages, error)
 }
 
-func (p productImageRepository) UpdateOption(b *dto.UpdateImageDTO) (*entity.ProductImages, error) {
+func (p productImageRepository) UpdateImage(b *dto.UpdateImageDTO) (*entity.ProductImages, error) {
 	//TODO implement me
+	var count int64
 	var updateImage *entity.ProductImages
-	record := p.connection.Where("id = ?", b.Image.ID).Find(&updateImage)
+	record := p.connection.Where("id = ?", b.Image.ID).Find(&updateImage).Count(&count)
 
 	if record.Error != nil {
 		log.Println("Error to find product repo", record.Error)
 		return nil, record.Error
+	}
+	if count == 0 {
+		return nil, errors.New("image not found")
 	}
 	updateImage = b.Image
 	recordSave := p.connection.Updates(&updateImage)

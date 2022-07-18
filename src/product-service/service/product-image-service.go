@@ -17,7 +17,7 @@ type ProductImageService interface {
 }
 
 func (p productImageService) UpdateImage(b *dto.UpdateImageDTO) (*entity.ProductImages, error) {
-	image, err := p.ProductImageRepository.UpdateOption(b)
+	image, err := p.ProductImageRepository.UpdateImage(b)
 	if err != nil {
 		log.Println("UpdateOption: Error call repo")
 		return nil, err

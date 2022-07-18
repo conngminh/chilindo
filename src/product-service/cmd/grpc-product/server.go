@@ -62,9 +62,9 @@ func (p *ProductServer) GetProduct(ctx context.Context, in *product.GetProductRe
 	prod, err := p.productService.FindProductByID(&dto)
 
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal error: %v", err)
+		return nil, status.Errorf(codes.NotFound, "Not found: %v", err)
 	}
-	
+
 	response := &product.GetProductResponse{
 		Id:          prod.Id,
 		Name:        prod.Name,

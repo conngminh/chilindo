@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	addr     = ":50051"
-	certFile = "src/pkg/ssl/server.crt"
-	keyFile  = "src/pkg/ssl/server.pem"
+	addrProduct = ":50051"
+	addrAuction = ":50053"
+	certFile    = "src/pkg/ssl/server.crt"
+	keyFile     = "src/pkg/ssl/server.pem"
 )
 
 type AdminServer struct {
@@ -25,7 +26,7 @@ type AdminServer struct {
 	AdminService service.IAdminService
 }
 
-func RunGRPCServer(enabledTLS bool, lis net.Listener) error {
+func RunGRPCServerProduct(enabledTLS bool, lis net.Listener) error {
 	var opts []grpc.ServerOption
 	if enabledTLS {
 		creds, err := credentials.NewServerTLSFromFile(certFile, keyFile)
@@ -44,7 +45,30 @@ func RunGRPCServer(enabledTLS bool, lis net.Listener) error {
 		AdminService: AdminService,
 	})
 
-	log.Printf("listening on %s\n", addr)
+	log.Printf("listening on %s\n", addrProduct)
+	return s.Serve(lis)
+}
+
+func RunGRPCServerAuction(enabledTLS bool, lis net.Listener) error {
+	var opts []grpc.ServerOption
+	if enabledTLS {
+		creds, err := credentials.NewServerTLSFromFile(certFile, keyFile)
+		if err != nil {
+			return err
+		}
+		opts = append(opts, grpc.Creds(creds))
+	}
+
+	s := grpc.NewServer(opts...)
+
+	adminRepo := repository.NewAdminRepositoryDefault(config.DB)
+	AdminService := service.NewAdminServiceDefault(adminRepo)
+
+	admin.RegisterAdminServiceServer(s, &AdminServer{
+		AdminService: AdminService,
+	})
+
+	log.Printf("listening on %s\n", addrAuction)
 	return s.Serve(lis)
 }
 

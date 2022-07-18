@@ -20,13 +20,13 @@ func NewImageRoute(productImageController controller.ProductImageController, rou
 }
 
 func (i ImageRoute) GetRouter() {
-	imageRoutes := i.Router.Group("api/image")
+	imageRoutes := i.Router.Group("chilindo/image")
 	imageRoutes.Use(middleware.Logger())
 	{
 		imageRoutes.POST("/id=:productId", i.ProductImageController.CreateImage)
-		imageRoutes.GET("/:productId", i.ProductImageController.GetImage)
+		imageRoutes.GET("/id=:productId", i.ProductImageController.GetImage)
 		imageRoutes.DELETE("/:imageId", i.ProductImageController.DeleteImage)
-		imageRoutes.GET("/image/:imageId", i.ProductImageController.GetImageByID)
+		imageRoutes.GET("/imageId=:imageId", i.ProductImageController.GetImageByID)
 		imageRoutes.PUT("/:imageId", i.ProductImageController.UpdateImage)
 	}
 }

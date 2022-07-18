@@ -24,7 +24,7 @@ func NewProductRoute(productController controller.ProductController, router *gin
 }
 
 func (p ProductRoute) GetRouter() {
-	productRoutes := p.Router.Group("api/product")
+	productRoutes := p.Router.Group("chilindo/product")
 	productRoutes.Use(middleware.Logger())
 	{
 		productRoutes.POST("/create", p.AdminSrvController.CheckIsAuth(p.AdminClient), p.ProductController.Insert)

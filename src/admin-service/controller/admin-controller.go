@@ -32,7 +32,6 @@ func NewAdminControllerDefault(adminService service.IAdminService) *AdminControl
 func (a AdminController) SignUp(ctx *gin.Context) {
 	var newAdmin *entity.Admin
 	errDTO := ctx.ShouldBindJSON(&newAdmin)
-
 	if errDTO != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"Message": "Error Binding JSON",
@@ -41,7 +40,6 @@ func (a AdminController) SignUp(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-
 	if a.AdminService.IsDuplicateUsername(newAdmin.Username) {
 		ctx.JSON(http.StatusConflict, gin.H{
 			"error": "username existed",

@@ -20,13 +20,13 @@ func NewOptionRoute(productOptionController controller.ProductOptionController, 
 }
 
 func (o OptionRoute) GetRouter() {
-	optionRoutes := o.Router.Group("api/product/option")
+	optionRoutes := o.Router.Group("chilindo/option")
 	optionRoutes.Use(middleware.Logger())
 	{
-		optionRoutes.POST("/:productId", o.ProductOptionController.CreateOption)
-		optionRoutes.GET("/:productId", o.ProductOptionController.GetOptions)
+		optionRoutes.POST("/Id=:productId", o.ProductOptionController.CreateOption)
+		optionRoutes.GET("/Id=:productId", o.ProductOptionController.GetOptions)
 		optionRoutes.DELETE("/:optionId", o.ProductOptionController.DeleteOption)
-		optionRoutes.GET("/option/:optionId", o.ProductOptionController.GetOptionByID)
+		optionRoutes.GET("/optionId=:optionId", o.ProductOptionController.GetOptionByID)
 		optionRoutes.PUT("/:optionId", o.ProductOptionController.UpdateOption)
 
 	}

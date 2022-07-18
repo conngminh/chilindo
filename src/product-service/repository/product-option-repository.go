@@ -3,6 +3,7 @@ package repository
 import (
 	"chilindo/src/product-service/dto"
 	"chilindo/src/product-service/entity"
+	"errors"
 	"gorm.io/gorm"
 	"log"
 )
@@ -19,11 +20,15 @@ type ProductOptionRepository interface {
 func (p productOptionRepository) UpdateOption(b *dto.UpdateOptionDTO) (*entity.ProductOption, error) {
 	//TODO implement me
 	var updateOption *entity.ProductOption
-	record := p.connection.Where("id = ?", b.Option.ID).Find(&updateOption)
+	var count int64
+	record := p.connection.Where("id = ?", b.Option.ID).Find(&updateOption).Count(&count)
 
 	if record.Error != nil {
 		log.Println("Error to find product repo", record.Error)
 		return nil, record.Error
+	}
+	if count == 0 {
+		return nil, errors.New("option not found")
 	}
 	updateOption = b.Option
 	recordSave := p.connection.Updates(&updateOption)

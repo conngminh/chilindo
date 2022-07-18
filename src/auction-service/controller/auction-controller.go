@@ -26,24 +26,25 @@ func (a AuctionController) CreateAuction(c *gin.Context) {
 	var auctionBody *entity.Auction
 	if err := c.ShouldBindJSON(&auctionBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": "Fail to create auction",
+			"Message": "Error when binding JSON",
 		})
 		log.Println("Error to ShouldBindJSON controller", err)
 		c.Abort()
 		return
 	}
-	in := &product.GetProductRequest{ProductId: auctionBody.ProductId}
-	res, errRes := a.ProductClient.GetProduct(c, in)
+	in := product.GetProductRequest{ProductId: auctionBody.ProductId}
+	res, errRes := a.ProductClient.GetProduct(c, &in)
+
 	if errRes != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": "Fail to create Auction",
+			"Message": "Fail to create auction",
 		})
 		log.Println("CreateAuction: Error to call productService rpc server", errRes)
 		c.Abort()
 		return
 	}
 
-	if res.Id == "" {
+	if res == nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Message": "Not found product",
 		})
@@ -51,8 +52,6 @@ func (a AuctionController) CreateAuction(c *gin.Context) {
 		c.Abort()
 		return
 	}
-
-	auctionBody.ProductId = res.GetId()
 
 	createdAuction, errCreateAuction := a.AuctionService.CreateAuction(auctionBody)
 	if errCreateAuction != nil {

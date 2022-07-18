@@ -3,6 +3,7 @@ package repository
 import (
 	"chilindo/src/product-service/dto"
 	"chilindo/src/product-service/entity"
+	"errors"
 	"gorm.io/gorm"
 	"log"
 )
@@ -40,15 +41,19 @@ func (t productConnection) InsertProduct(b *dto.ProductCreatedDTO) (*entity.Prod
 
 func (t productConnection) UpdateProduct(b *dto.ProductUpdateDTO) (*entity.Product, error) {
 	var updateProduct *entity.Product
-	record := t.connection.Where("id = ?", b.ProductId).Find(&updateProduct)
+	var count int64
+	record := t.connection.Where("id = ?", b.ProductId).Find(&updateProduct).Count(&count)
 
 	if record.Error != nil {
 		log.Println("Error to find product repo", record.Error)
 		return nil, record.Error
 	}
+	if count == 0 {
+		return nil, errors.New("product not found")
+	}
 	//b.Product.Id = b.ProductId
 	updateProduct = b.Product
-	recordSave := t.connection.Save(&updateProduct)
+	recordSave := t.connection.Updates(&updateProduct)
 	if recordSave.Error != nil {
 		log.Println("Error to update produce repo", recordSave.Error)
 		return nil, recordSave.Error
@@ -66,18 +71,18 @@ func (t productConnection) AllProduct() (*[]entity.Product, error) {
 	return products, nil
 }
 
-func (t productConnection) FindProductByID(b *dto.ProductDTO) (*entity.Product, error) {
+func (t productConnection) FindProductByID(pid *dto.ProductDTO) (*entity.Product, error) {
 	var product *entity.Product
-	//var count int64
-	record := t.connection.Where("id = ?", b.ProductId).Find(&product)
+	var count int64
+	record := t.connection.Where("id = ?", pid.ProductId).Find(&product).Count(&count)
 	if record.Error != nil {
 		log.Println("Get product by ID", record.Error)
 		return nil, record.Error
 	}
-	//if count == 0 {
-	//	log.Println("GetProductById: Not found product", count)
-	//	return nil, nil
-	//}
+	if count == 0 {
+		log.Println("GetProductById: Product not found", count)
+		return nil, errors.New("error: Product not found")
+	}
 	return product, nil
 }
 
