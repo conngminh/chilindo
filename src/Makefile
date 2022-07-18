@@ -9,3 +9,7 @@ gen-protoc-admin:
 
 gen-protoc-product:
 	protoc --go_out=. --go-grpc_out=. .\src\pkg\proto\product.proto
+
+mock-gen-controller:
+	mockgen -source="./src/product-service/repository/product-repository.go" -destination="./src/product-service/mock/product-repository_mock.go" -package=service
+
