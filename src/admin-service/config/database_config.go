@@ -13,7 +13,7 @@ var (
 	host     string = "localhost"
 	port     string = "3306"
 	username string = "root"
-	password string = "Ronaldokl10112000"
+	password string = "Ledoan070899"
 	database string = "chilindo"
 )
 var connectString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",

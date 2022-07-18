@@ -77,13 +77,6 @@ func main() {
 	imageRouter := route.NewImageRoute(productImageController, newRouter)
 	imageRouter.GetRouter()
 
-	//if err := newRouter.Run(ginPort); err != nil {
-	//
-	//	fmt.Println("Open port is fail")
-	//	return
-	//}
-	//fmt.Println("Server is opened on port 8080")
-
 	go func() {
 		if err := newRouter.Run(ginPort); err != nil {
 

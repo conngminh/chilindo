@@ -68,11 +68,16 @@ func (t productConnection) AllProduct() (*[]entity.Product, error) {
 
 func (t productConnection) FindProductByID(b *dto.ProductDTO) (*entity.Product, error) {
 	var product *entity.Product
+	//var count int64
 	record := t.connection.Where("id = ?", b.ProductId).Find(&product)
 	if record.Error != nil {
 		log.Println("Get product by ID", record.Error)
 		return nil, record.Error
 	}
+	//if count == 0 {
+	//	log.Println("GetProductById: Not found product", count)
+	//	return nil, nil
+	//}
 	return product, nil
 }
 
