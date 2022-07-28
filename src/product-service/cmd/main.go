@@ -83,7 +83,7 @@ func main() {
 			fmt.Println("Open port is fail")
 			return
 		}
-		fmt.Println("Server is opened on port 8080")
+		fmt.Println("Server is opened on port 1002")
 	}()
 
 	lis, err := net.Listen("tcp", grpcServerPort)

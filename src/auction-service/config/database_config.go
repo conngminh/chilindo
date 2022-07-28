@@ -3,32 +3,29 @@ package config
 import (
 	"chilindo/src/auction-service/entity"
 	"fmt"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
-)
-
-var (
-	host     string = "localhost"
-	port     string = "3306"
-	username string = "root"
-	password string = "Ronaldokl10112000"
-	database string = "chilindo"
-)
-var connectString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-	username,
-	password,
-	host,
-	port,
-	database,
+	"os"
 )
 
 var DB *gorm.DB
 var err error
 
 func ConnectDatabase() {
-	DB, err = gorm.Open(mysql.Open(connectString), &gorm.Config{
+	if err := godotenv.Load(); err != nil {
+		panic("Error loading .env in auction file")
+	}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+	)
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
