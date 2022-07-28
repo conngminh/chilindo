@@ -45,7 +45,7 @@ func RunGRPCServer(enabledTLS bool, lis net.Listener) error {
 		productService: serviceProduct,
 	})
 
-	log.Printf("Serve ProductService server on %s\n", grpcServerPort)
+	log.Printf("  Product Server is on port  %s\n", grpcServerPort)
 	return s.Serve(lis)
 }
 

@@ -97,6 +97,7 @@ func (u UserRepositoryDefault) VerifyCredential(loginDTO *dto.UserLoginDTO) (*en
 		err := errors.New("email doesn't exist")
 		return nil, err
 	}
+
 	if err := user.CheckPassword(loginDTO.Password); err != nil {
 		log.Println("VerifyCredential: Error in check password package repository: ", err.Error())
 		err = errors.New("wrong password")

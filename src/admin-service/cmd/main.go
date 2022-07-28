@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	adminClientPortForProduct = ":50051"
-	adminClientPortForAuction = ":50053"
+	adminPortForClients = ":50051"
+	//adminClientPortForAuction = ":50053"
 )
 
 func main() {
@@ -37,24 +37,14 @@ func main() {
 		fmt.Println("Server is opened on port 1001")
 
 	}()
-	lis1, err1 := net.Listen("tcp", adminClientPortForProduct)
+	lis1, err1 := net.Listen("tcp", adminPortForClients)
 	if err1 != nil {
 		log.Fatalf("failed to listen: %v", err1)
 	}
 
-	if err1 = grpc_server.RunGRPCServerProduct(true, lis1); err1 != nil {
+	if err1 = grpc_server.RunGRPCServer(true, lis1); err1 != nil {
 		log.Fatalf("failed to serve: %v", err1)
 	}
 	log.Println("gRPC server admin is running")
-
-	//lis2, err2 := net.Listen("tcp", adminClientPortForAuction)
-	//if err2 != nil {
-	//	log.Fatalf("failed to listen: %v", err2)
-	//}
-	//
-	//if err2 = grpc_server.RunGRPCServerAuction(true, lis2); err2 != nil {
-	//	log.Fatalf("failed to serve: %v", err2)
-	//}
-	//log.Println("gRPC server admin is running")
 
 }

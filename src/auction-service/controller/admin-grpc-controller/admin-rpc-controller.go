@@ -34,7 +34,7 @@ func (a AdminServiceController) CheckIsAuth(adminClient pb.AdminServiceClient) g
 		if err != nil {
 			log.Println(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"Error": "Error call admin service",
+				"Error": err.Error(),
 			})
 			c.Abort()
 			return
