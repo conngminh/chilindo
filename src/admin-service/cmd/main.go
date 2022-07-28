@@ -42,7 +42,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err1)
 	}
 
-	if err1 = grpc_server.RunGRPCServer(true, lis1); err1 != nil {
+	if err1 = grpc_server.RunGRPCServer(false, lis1); err1 != nil {
 		log.Fatalf("failed to serve: %v", err1)
 	}
 	log.Println("gRPC server admin is running")

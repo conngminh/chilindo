@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chilindo/pkg/utils"
 	rpcClientAuction "chilindo/src/auction-service/cmd/grpc-auction"
 	"chilindo/src/auction-service/config"
 	"chilindo/src/auction-service/controller"
@@ -8,7 +9,6 @@ import (
 	"chilindo/src/auction-service/repository"
 	"chilindo/src/auction-service/route"
 	"chilindo/src/auction-service/service"
-	"chilindo/src/user-service/utils"
 	"fmt"
 )
 

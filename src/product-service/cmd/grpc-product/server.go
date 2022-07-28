@@ -1,7 +1,7 @@
 package grpc_product
 
 import (
-	"chilindo/src/pkg/pb/product"
+	"chilindo/pkg/pb/product"
 	"chilindo/src/product-service/config"
 	"chilindo/src/product-service/dto"
 	"chilindo/src/product-service/repository"
@@ -17,8 +17,8 @@ import (
 
 const (
 	grpcServerPort = ":50052"
-	certFile       = "src/pkg/ssl/server.crt"
-	keyFile        = "src/pkg/ssl/server.pem"
+	certFile       = "pkg/ssl/server.crt"
+	keyFile        = "pkg/ssl/server.pem"
 )
 
 type ProductServer struct {

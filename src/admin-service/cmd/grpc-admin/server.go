@@ -1,10 +1,10 @@
 package grpc_admin
 
 import (
+	admin2 "chilindo/pkg/pb/admin"
 	"chilindo/src/admin-service/config"
 	"chilindo/src/admin-service/repository"
 	"chilindo/src/admin-service/service"
-	"chilindo/src/pkg/pb/admin"
 	"context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -16,12 +16,12 @@ import (
 
 const (
 	addrAdminServer = ":50051"
-	certFile        = "src/pkg/ssl/server.crt"
-	keyFile         = "src/pkg/ssl/server.pem"
+	certFile        = "pkg/ssl/server.crt"
+	keyFile         = "pkg/ssl/server.pem"
 )
 
 type AdminServer struct {
-	admin.AdminServiceServer
+	admin2.AdminServiceServer
 	AdminService service.IAdminService
 }
 
@@ -40,7 +40,7 @@ func RunGRPCServer(enabledTLS bool, lis net.Listener) error {
 	adminRepo := repository.NewAdminRepositoryDefault(config.DB)
 	AdminService := service.NewAdminServiceDefault(adminRepo)
 
-	admin.RegisterAdminServiceServer(s, &AdminServer{
+	admin2.RegisterAdminServiceServer(s, &AdminServer{
 		AdminService: AdminService,
 	})
 
@@ -48,7 +48,7 @@ func RunGRPCServer(enabledTLS bool, lis net.Listener) error {
 	return s.Serve(lis)
 }
 
-func (a *AdminServer) CheckIsAuth(ctx context.Context, in *admin.CheckIsAuthRequest) (*admin.CheckIsAuthResponse, error) {
+func (a *AdminServer) CheckIsAuth(ctx context.Context, in *admin2.CheckIsAuthRequest) (*admin2.CheckIsAuthResponse, error) {
 	log.Printf("Login request: %v\n", in)
 
 	res, err := a.AdminService.CheckIsAuth(in)

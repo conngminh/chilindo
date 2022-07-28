@@ -1,12 +1,12 @@
 package main
 
 import (
+	"chilindo/pkg/utils"
 	"chilindo/src/user-service/config"
 	"chilindo/src/user-service/controller"
 	"chilindo/src/user-service/repository"
 	"chilindo/src/user-service/route"
 	"chilindo/src/user-service/service"
-	"chilindo/src/user-service/utils"
 	"fmt"
 )
 

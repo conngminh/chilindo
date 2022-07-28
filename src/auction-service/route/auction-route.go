@@ -1,9 +1,9 @@
 package route
 
 import (
+	"chilindo/pkg/pb/admin"
 	"chilindo/src/auction-service/controller"
 	admin_server_controller "chilindo/src/auction-service/controller/admin-grpc-controller"
-	"chilindo/src/pkg/pb/admin"
 	"github.com/gin-gonic/gin"
 )
 

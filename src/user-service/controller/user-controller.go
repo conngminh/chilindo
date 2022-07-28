@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"chilindo/src/pkg/token"
+	"chilindo/pkg/token"
 	"chilindo/src/user-service/dto"
 	"chilindo/src/user-service/entity"
 	"chilindo/src/user-service/service"

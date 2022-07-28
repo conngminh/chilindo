@@ -1,7 +1,7 @@
 package route
 
 import (
-	"chilindo/src/pkg/pb/admin"
+	"chilindo/pkg/pb/admin"
 	"chilindo/src/product-service/controller"
 	admin_server_controller "chilindo/src/product-service/controller/admin-grpc-controller"
 	"chilindo/src/product-service/middleware"

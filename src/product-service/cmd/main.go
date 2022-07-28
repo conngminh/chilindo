@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chilindo/pkg/utils"
 	grpc_product "chilindo/src/product-service/cmd/grpc-product"
 	rpcClient "chilindo/src/product-service/cmd/grpc-product"
 
@@ -10,7 +11,6 @@ import (
 	"chilindo/src/product-service/repository"
 	"chilindo/src/product-service/route"
 	"chilindo/src/product-service/service"
-	"chilindo/src/user-service/utils"
 	"fmt"
 	"log"
 	"net"
@@ -66,7 +66,7 @@ func main() {
 		log.Fatalf("failed to listen from product service: %v", err)
 	}
 
-	if err = grpc_product.RunGRPCServer(true, lis); err != nil {
+	if err = grpc_product.RunGRPCServer(false, lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 	log.Println("gRPC server admin is running")

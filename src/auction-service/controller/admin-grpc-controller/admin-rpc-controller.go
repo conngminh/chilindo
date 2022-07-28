@@ -1,14 +1,14 @@
 package admin_grpc_controller
 
 import (
-	pb "chilindo/src/pkg/pb/admin"
+	"chilindo/pkg/pb/admin"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 )
 
 type IAdminServiceController interface {
-	CheckIsAuth(adminClient pb.AdminServiceClient) gin.HandlerFunc
+	CheckIsAuth(adminClient admin.AdminServiceClient) gin.HandlerFunc
 }
 
 type AdminServiceController struct {
@@ -18,7 +18,7 @@ func NewAdminServiceController() *AdminServiceController {
 	return &AdminServiceController{}
 }
 
-func (a AdminServiceController) CheckIsAuth(adminClient pb.AdminServiceClient) gin.HandlerFunc {
+func (a AdminServiceController) CheckIsAuth(adminClient admin.AdminServiceClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
 		if token == "" {
@@ -28,7 +28,7 @@ func (a AdminServiceController) CheckIsAuth(adminClient pb.AdminServiceClient) g
 			c.Abort()
 			return
 		}
-		res, err := adminClient.CheckIsAuth(c, &pb.CheckIsAuthRequest{
+		res, err := adminClient.CheckIsAuth(c, &admin.CheckIsAuthRequest{
 			Token: token,
 		})
 		if err != nil {
