@@ -23,7 +23,7 @@ func NewAdminRepositoryDefault(db *gorm.DB) *AdminRepositoryDefault {
 	return &AdminRepositoryDefault{db: db}
 }
 
-func (a AdminRepositoryDefault) InsertAdmin(admin *entity.Admin) (*entity.Admin, error) {
+func (a *AdminRepositoryDefault) InsertAdmin(admin *entity.Admin) (*entity.Admin, error) {
 	if errCheckEmptyField := admin.Validate("register"); errCheckEmptyField != nil {
 		log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
 		return nil, errCheckEmptyField
@@ -55,7 +55,7 @@ func (u AdminRepositoryDefault) UpdateAdmin(admin *entity.Admin) *entity.Admin {
 	return admin
 }
 
-func (a AdminRepositoryDefault) IsDuplicateUsername(username string) bool {
+func (a *AdminRepositoryDefault) IsDuplicateUsername(username string) bool {
 	var admin *entity.Admin
 	result := a.db.Where("username = ?", username).Find(&admin)
 	if result.Error != nil {
@@ -64,7 +64,7 @@ func (a AdminRepositoryDefault) IsDuplicateUsername(username string) bool {
 	return false
 }
 
-func (a AdminRepositoryDefault) VerifyCredential(loginDTO *dto.AdminLoginDTO) (*entity.Admin, error) {
+func (a *AdminRepositoryDefault) VerifyCredential(loginDTO *dto.AdminLoginDTO) (*entity.Admin, error) {
 	if errCheckEmptyField := loginDTO.Validate("login"); errCheckEmptyField != nil {
 		log.Println("VerifyCredential: Error empty field in package repository", errCheckEmptyField)
 		return nil, errCheckEmptyField
